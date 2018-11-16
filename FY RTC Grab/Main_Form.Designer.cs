@@ -195,13 +195,13 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(21)))), ((int)(((byte)(25)))), ((int)(((byte)(31)))));
             this.ClientSize = new System.Drawing.Size(466, 468);
+            this.Controls.Add(this.webBrowser);
             this.Controls.Add(this.label_player_last_registered);
             this.Controls.Add(this.label_status);
             this.Controls.Add(this.panel2);
             this.Controls.Add(this.label_brand);
             this.Controls.Add(this.pictureBox_loader);
             this.Controls.Add(this.panel_header);
-            this.Controls.Add(this.webBrowser);
             this.ForeColor = System.Drawing.Color.White;
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
