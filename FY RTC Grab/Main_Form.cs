@@ -285,7 +285,7 @@ namespace FY_RTC_Grab
                                 label_player_last_registered.Visible = true;
                                 label_status.Text = "...";
                                 ___PlayerLastRegistered();
-                                ___GetPlayerLists();
+                                ___GetPlayerListsRequest();
                                 webBrowser.WebBrowserShortcutsEnabled = false;
                             }
                         }
@@ -345,7 +345,7 @@ namespace FY_RTC_Grab
                     label_status.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
                     label_status.Location = new Point(0, 65);
                     label_status.Text = "...";
-                    ___GetPlayerLists();
+                    ___GetPlayerListsRequest();
                 }
                 else
                 {
@@ -356,7 +356,7 @@ namespace FY_RTC_Grab
         }
         
         // ------ Functions
-        private async void ___GetPlayerLists()
+        private async void ___GetPlayerListsRequest()
         {
             __isBreak = false;
             
@@ -398,11 +398,9 @@ namespace FY_RTC_Grab
                 var deserializeObject_gettotal = JsonConvert.DeserializeObject(responsebody_gettotatal);
                 JObject jo_gettotal = JObject.Parse(deserializeObject_gettotal.ToString());
                 JToken jt_gettotal = jo_gettotal.SelectToken("$.iTotalRecords");
-                //_total_records_fy += double.Parse(jt_gettotal.ToString());
                 double get_total_records_fy = 0;
                 get_total_records_fy = double.Parse(jt_gettotal.ToString());
-
-                //fy_gettotal_test.Add(get_total_records_fy.ToString());
+                
                 double result_total_records = get_total_records_fy / __display_length;
 
                 if (result_total_records.ToString().Contains("."))
@@ -447,7 +445,7 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                ___GetPlayerLists();
+                ___GetPlayerListsRequest();
             }
         }
 
@@ -514,6 +512,7 @@ namespace FY_RTC_Grab
                         // send to api
                         //player_info.Reverse();
                         //MessageBox.Show(String.Join("," + Environment.NewLine, player_info));
+                        // todo
 
                         timer.Start();
                         __start_time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -523,19 +522,7 @@ namespace FY_RTC_Grab
                         break;
                     }
                 }
-
-                //_result_count_json_fy = 0;
-
-                // web client request
-                //await GetDataFYPagesPlayerListAsync();
             }
-
-            //FY_PlayerListInsertDone();
-
-            //if (_fy_inserted_in_excel)
-            //{
-            //    _isDone_fy = true;
-            //}
         }
         
         private async Task ___PlayerListContactNumberEmailAsync(string id)
@@ -656,6 +643,7 @@ namespace FY_RTC_Grab
             }
             
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+            // todo
         }
 
         private void ___SavePlayerLastRegistered(string username)
