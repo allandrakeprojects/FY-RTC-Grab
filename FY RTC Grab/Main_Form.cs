@@ -494,7 +494,7 @@ namespace FY_RTC_Grab
                         await ___PlayerListContactNumberEmailAsync(__player_id);
                         await ___PlayerListLastDeposit(__player_id);
                         
-                        using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test.txt", true, Encoding.UTF8))
+                        using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test_fy.txt", true, Encoding.UTF8))
                         {
                             file.WriteLine(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea);
                         }
