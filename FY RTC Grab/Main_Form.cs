@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -35,6 +36,8 @@ namespace FY_RTC_Grab
         private string __player_ldd;
         private string __start_time;
         private string __end_time;
+        private string __brand_code = "FY";
+        private int __count = 0;
 
         // Drag Header to Move
         [DllImport("user32.dll")]
@@ -468,21 +471,10 @@ namespace FY_RTC_Grab
                     string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
                     __player_id = Regex.Match(username__id.ToString(), "player=\\\"(.*?)\\\"").Groups[1].Value;
                     JToken name = __jo.SelectToken("$.aaData[" + ii + "][2]").ToString().Replace("\"", "");
-                    JToken source = __jo.SelectToken("$.aaData[" + ii + "][3]").ToString().Replace("\"", "");
-                    JToken vip = __jo.SelectToken("$.aaData[" + ii + "][4]").ToString().Replace("\"", "");
-                    if (vip.ToString().Contains("label"))
-                    {
-                        string vip_get = Regex.Match(vip.ToString(), "<label(.*?)>(.*?)</label>").Groups[2].Value;
-                        vip = vip_get;
-                    }
-                    JToken last_login_date___ip = __jo.SelectToken("$.aaData[" + ii + "][11]");
-                    string last_login_date = last_login_date___ip.ToString().Substring(0, 19);
-                    string ip = Regex.Match(last_login_date___ip.ToString(), "<label(.*?)>(.*?)</label>").Groups[2].Value;
+                    JToken agent = __jo.SelectToken("$.aaData[" + ii + "][3]").ToString().Replace("\"", "");
                     JToken date_register__register_domain = __jo.SelectToken("$.aaData[" + ii + "][12]");
                     string date_register = date_register__register_domain.ToString().Substring(0, 10);
                     string date_time_register = date_register__register_domain.ToString().Substring(14, 8);
-                    string register_domain = date_register__register_domain.ToString().Substring(27);
-                    JToken status = __jo.SelectToken("$.aaData[" + ii + "][13]").ToString().Replace("\"", "");
                     
                     if (username != Properties.Settings.Default.______last_registered_player)
                     {
@@ -496,9 +488,9 @@ namespace FY_RTC_Grab
                         
                         using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test_fy.txt", true, Encoding.UTF8))
                         {
-                            file.WriteLine(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea);
+                            file.WriteLine(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent);
                         }
-                        player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea);
+                        player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent);
                         // insert string builder
                     }
                     else
@@ -510,9 +502,69 @@ namespace FY_RTC_Grab
                         }
 
                         // send to api
-                        //player_info.Reverse();
-                        //MessageBox.Show(String.Join("," + Environment.NewLine, player_info));
-                        // todo
+                        if (player_info.Count != 0)
+                        {
+                            player_info.Reverse();
+                            string player_info_get = String.Join(",", player_info);
+                            string[] values = player_info_get.Split(',');
+                            foreach (string value in values)
+                            {
+                                string[] values_inner = value.Split(new string[] { "*|*" }, StringSplitOptions.None);
+                                int count = 0;
+                                string _username = "";
+                                string _name = "";
+                                string _date_register = "";
+                                string _date_deposit = "";
+                                string _cn = "";
+                                string _email = "";
+                                string _agent = "";
+
+                                foreach (string value_inner in values_inner)
+                                {
+                                    count++;
+
+                                    // Username
+                                    if (count == 1)
+                                    {
+                                        _username = value_inner;
+                                    }
+                                    // Name
+                                    else if (count == 2)
+                                    {
+                                        _name = value_inner;
+                                    }
+                                    // Register Date
+                                    else if (count == 3)
+                                    {
+                                        _date_register = value_inner;
+                                    }
+                                    // Last Deposit Date
+                                    else if (count == 4)
+                                    {
+                                        _date_deposit = value_inner;
+                                    }
+                                    // Contact Number
+                                    else if (count == 5)
+                                    {
+                                        _cn = value_inner;
+                                    }
+                                    // Email
+                                    else if (count == 6)
+                                    {
+                                        _email = value_inner;
+                                    }
+                                    // Agent
+                                    else if (count == 7)
+                                    {
+                                        _agent = value_inner;
+                                    }
+                                }
+
+                                // ----- Insert Data
+                                ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, __brand_code);
+                                __count = 0;
+                            }
+                        }
 
                         timer.Start();
                         __start_time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
@@ -521,6 +573,98 @@ namespace FY_RTC_Grab
                         __isBreak = true;
                         break;
                     }
+                }
+            }
+        }
+
+        private void ___InsertData(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
+        {
+            try
+            {
+                string password = username + date_register + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+                
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["username"] = username,
+                        ["name"] = name,
+                        ["date_register"] = date_register,
+                        ["date_deposit"] = date_deposit,
+                        ["contact"] = contact,
+                        ["email"] = email,
+                        ["agent"] = agent,
+                        ["brand_code"] = brand_code,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTC", "POST", data);
+                    string responseInString = Encoding.UTF8.GetString(response);
+                }
+            }
+            catch (Exception err)
+            {
+                __count++;
+                if (__count == 5)
+                {
+                    MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ____InsertData2(username, name, date_register, date_deposit, contact, email, agent, brand_code);
+                }
+            }
+        }
+
+        private void ____InsertData2(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
+        {
+            try
+            {
+                string password = username + date_register + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["username"] = username,
+                        ["name"] = name,
+                        ["date_register"] = date_register,
+                        ["date_deposit"] = date_deposit,
+                        ["contact"] = contact,
+                        ["email"] = email,
+                        ["agent"] = agent,
+                        ["brand_code"] = brand_code,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/sendRTC", "POST", data);
+                    string responseInString = Encoding.UTF8.GetString(response);
+                }
+            }
+            catch (Exception err)
+            {
+                __count++;
+                if (__count == 5)
+                {
+                    MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___InsertData(username, name, date_register, date_deposit, contact, email, agent, brand_code);
                 }
             }
         }
@@ -642,6 +786,9 @@ namespace FY_RTC_Grab
                 // handle request
             }
             
+            //Properties.Settings.Default.______last_registered_player = "yuhf4f999";
+            //Properties.Settings.Default.Save();
+
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
             // todo
         }
