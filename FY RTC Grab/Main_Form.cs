@@ -393,6 +393,7 @@ namespace FY_RTC_Grab
                     player.Stop();
                 }
 
+                timer.Stop();
                 __isClose = false;
                 Environment.Exit(0);
             }
