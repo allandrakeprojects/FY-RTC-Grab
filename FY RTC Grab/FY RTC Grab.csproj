@@ -105,5 +105,8 @@
   <ItemGroup>
     <None Include="Resources\rtc_grab.wav" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rtc_fy1.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
