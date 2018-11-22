@@ -494,12 +494,7 @@ namespace FY_RTC_Grab
                         await ___PlayerListContactNumberEmailAsync(__player_id);
                         await ___PlayerListLastDeposit(__player_id);
                         
-                        using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test_fy.txt", true, Encoding.UTF8))
-                        {
-                            file.WriteLine(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent);
-                        }
                         player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent);
-                        // insert string builder
                     }
                     else
                     {
@@ -569,9 +564,19 @@ namespace FY_RTC_Grab
                                 }
 
                                 // ----- Insert Data
+                                using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test_fy.txt", true, Encoding.UTF8))
+                                {
+                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + __brand_code);
+                                }
+                                using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\test_fy.txt", true, Encoding.UTF8))
+                                {
+                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + __brand_code);
+                                }
                                 ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, __brand_code);
                                 __count = 0;
                             }
+                            
+                            player_info.Clear();
                         }
 
                         timer.Start();
