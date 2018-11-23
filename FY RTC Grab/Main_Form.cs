@@ -865,8 +865,8 @@ namespace FY_RTC_Grab
                 Properties.Settings.Default.Save();
                 // handle request
             }
-            
-            //Properties.Settings.Default.______last_registered_player = "yuhf4f999";
+
+            //Properties.Settings.Default.______last_registered_player = "wsxedcr9";
             //Properties.Settings.Default.Save();
 
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
