@@ -38,12 +38,12 @@ namespace FY_RTC_Grab.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string test {
+        public string ______last_registered_player_deposit {
             get {
-                return ((string)(this["test"]));
+                return ((string)(this["______last_registered_player_deposit"]));
             }
             set {
-                this["test"] = value;
+                this["______last_registered_player_deposit"] = value;
             }
         }
     }

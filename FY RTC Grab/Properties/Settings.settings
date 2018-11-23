@@ -5,7 +5,7 @@
     <Setting Name="______last_registered_player" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="test" Type="System.String" Scope="User">
+    <Setting Name="______last_registered_player_deposit" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

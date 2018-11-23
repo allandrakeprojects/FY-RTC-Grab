@@ -3,8 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Drawing;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -12,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -19,6 +18,7 @@ namespace FY_RTC_Grab
 {
     public partial class Main_Form : Form
     {
+        private JObject __jo;
         private bool m_aeroEnabled;
         private bool __isClose;
         private int __secho;
@@ -26,7 +26,6 @@ namespace FY_RTC_Grab
         private int __result_count_json;
         private int __total_page;
         private int __i = 0;
-        private JObject __jo;
         private bool __isStart = false;
         private bool __isBreak = false;
         private string __player_last_username = "";
@@ -38,6 +37,15 @@ namespace FY_RTC_Grab
         private string __end_time;
         private string __brand_code = "FY";
         private int __count = 0;
+
+        private JObject __jo_deposit;
+        private bool __isBreak_deposit = false;
+        private int __secho_deposit;
+        private int __total_page_deposit;
+        private int __result_count_json_deposit;
+        private int __count_deposit = 0;
+        private string __player_ldd_deposit;
+        private string __player_id_deposit;
 
         // Drag Header to Move
         [DllImport("user32.dll")]
@@ -191,14 +199,6 @@ namespace FY_RTC_Grab
                 SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
             }
         }
-        private void label_status_MouseDown(object sender, MouseEventArgs e)
-        {
-            if (e.Button == MouseButtons.Left)
-            {
-                ReleaseCapture();
-                SendMessage(Handle, WM_NCLBUTTONDOWN, HT_CAPTION, 0);
-            }
-        }
         private void label_player_last_registered_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -287,8 +287,6 @@ namespace FY_RTC_Grab
                             }
                             
                             __isStart = false;
-                            timer.Stop();
-                            label_status.Text = "-";
                             label_player_last_registered.Text = "-";
                             webBrowser.Document.Window.ScrollTo(0, webBrowser.Document.Body.ScrollRectangle.Height);
                             webBrowser.Document.GetElementById("csname").SetAttribute("value", "fyrain");
@@ -297,7 +295,6 @@ namespace FY_RTC_Grab
                             webBrowser.Visible = true;
                             label_brand.Visible = false;
                             pictureBox_loader.Visible = false;
-                            label_status.Visible = false;
                             label_player_last_registered.Visible = false;
                             webBrowser.WebBrowserShortcutsEnabled = true;
 
@@ -319,11 +316,12 @@ namespace FY_RTC_Grab
                                 webBrowser.Visible = false;
                                 label_brand.Visible = true;
                                 pictureBox_loader.Visible = true;
-                                label_status.Visible = true;
                                 label_player_last_registered.Visible = true;
-                                label_status.Text = "...";
                                 ___PlayerLastRegistered();
-                                ___GetPlayerListsRequest();
+                                Thread t1 = new Thread(delegate () { ___GetPlayerListsRequest(); });
+                                t1.Start();
+                                Thread t2 = new Thread(delegate () { ___GetPlayerListsRequest_Deposit(); });
+                                t2.Start();
                                 webBrowser.WebBrowserShortcutsEnabled = false;
                             }
                         }
@@ -343,77 +341,6 @@ namespace FY_RTC_Grab
                         Environment.Exit(0);
                     }
                 }
-            }
-        }
-        
-        private void timer_Tick(object sender, EventArgs e)
-        {
-            label_status.Font = new Font("Microsoft Sans Serif", 12, FontStyle.Bold);
-            label_status.Location = new Point(1, 70);
-            DateTime start = DateTime.ParseExact(__start_time, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-            DateTime end = DateTime.ParseExact(__end_time, "dd/MM/yyyy HH:mm:ss", CultureInfo.InvariantCulture);
-
-            TimeSpan difference = end - start;
-            int hrs = difference.Hours;
-            int mins = difference.Minutes;
-            int secs = difference.Seconds;
-
-            TimeSpan spinTime = new TimeSpan(hrs, mins, secs);
-
-            TimeSpan delta = DateTime.Now - start;
-            TimeSpan timeRemaining = spinTime - delta;
-
-            if (timeRemaining.Minutes != 0)
-            {
-                if (timeRemaining.Seconds == 0)
-                {
-                    label_status.Text = timeRemaining.Minutes + ":" + timeRemaining.Seconds + "0";
-                }
-                else
-                {
-                    if (timeRemaining.Seconds.ToString().Length == 1)
-                    {
-                        label_status.Text = timeRemaining.Minutes + ":0" + timeRemaining.Seconds;
-                    }
-                    else
-                    {
-                        label_status.Text = timeRemaining.Minutes + ":" + timeRemaining.Seconds;
-                    }
-                }
-                
-                label_status.Visible = true;
-            }
-            else
-            {
-                if (label_status.Text == "1")
-                {
-                    timer.Stop();
-                    label_status.Font = new Font("Microsoft Sans Serif", 8, FontStyle.Regular);
-                    label_status.Location = new Point(0, 65);
-                    label_status.Text = "...";
-                    ___GetPlayerListsRequest();
-                }
-                else
-                {
-                    label_status.Text = timeRemaining.Seconds.ToString();
-                    label_status.Visible = true;
-                }
-            }
-
-            if (label_status.Text.Contains("-"))
-            {
-                timer.Stop();
-                System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                player.PlayLooping();
-
-                DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                if (dr == DialogResult.OK)
-                {
-                    player.Stop();
-                }
-                
-                __isClose = false;
-                Environment.Exit(0);
             }
         }
         
@@ -525,7 +452,6 @@ namespace FY_RTC_Grab
                 for (int ii = 0; ii < __result_count_json; ii++)
                 {
                     Application.DoEvents();
-
                     JToken username__id = __jo.SelectToken("$.aaData[" + ii + "][0]").ToString();
                     string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
                     __player_id = Regex.Match(username__id.ToString(), "player=\\\"(.*?)\\\"").Groups[1].Value;
@@ -552,7 +478,11 @@ namespace FY_RTC_Grab
                         if (!String.IsNullOrEmpty(__player_last_username.Trim()))
                         {
                             ___SavePlayerLastRegistered(__player_last_username);
-                            label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+
+                            Invoke(new Action(() =>
+                            {
+                                label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+                            }));
                         }
 
                         // send to api
@@ -563,6 +493,7 @@ namespace FY_RTC_Grab
                             string[] values = player_info_get.Split(',');
                             foreach (string value in values)
                             {
+                                Application.DoEvents();
                                 string[] values_inner = value.Split(new string[] { "*|*" }, StringSplitOptions.None);
                                 int count = 0;
                                 string _username = "";
@@ -630,15 +561,19 @@ namespace FY_RTC_Grab
                             player_info.Clear();
                         }
 
-                        timer.Start();
-                        __start_time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-                        __end_time = DateTime.Now.AddSeconds(302).ToString("dd/MM/yyyy HH:mm:ss");
+                        // comment
+                        //timer.Start();
+                        //__start_time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
+                        //__end_time = DateTime.Now.AddSeconds(302).ToString("dd/MM/yyyy HH:mm:ss");
 
                         __isBreak = true;
                         break;
                     }
                 }
             }
+            
+            // update
+            ___GetPlayerListsRequest();
         }
 
         private void ___InsertData(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
@@ -857,20 +792,18 @@ namespace FY_RTC_Grab
         
         private void ___PlayerLastRegistered()
         {
-            // handle last registered player
+            // update this when deploy
+            // todo
             if (Properties.Settings.Default.______last_registered_player == "")
             {
-                //MessageBox.Show("ghghg");
-                Properties.Settings.Default.______last_registered_player = "wxs520";
+                Properties.Settings.Default.______last_registered_player = "s346379130";
                 Properties.Settings.Default.Save();
-                // handle request
             }
 
-            //Properties.Settings.Default.______last_registered_player = "wsxedcr9";
-            //Properties.Settings.Default.Save();
-
+            Properties.Settings.Default.______last_registered_player_deposit = "s346379130";
+            Properties.Settings.Default.Save();
+            
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
-            // todo
         }
 
         private void ___SavePlayerLastRegistered(string username)
@@ -883,6 +816,292 @@ namespace FY_RTC_Grab
         {
             panel_landing.Visible = false;
             timer_landing.Stop();
+        }
+        
+        // Deposit
+        private async void ___GetPlayerListsRequest_Deposit()
+        {
+            __isBreak_deposit = false;
+
+            try
+            {
+                var cookie = Cookie.GetCookieInternal(webBrowser.Url, false);
+                WebClient wc = new WebClient();
+
+                wc.Headers.Add("Cookie", cookie);
+                wc.Encoding = Encoding.UTF8;
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+                var reqparm_gettotal = new NameValueCollection
+                {
+                    {"s_btype", ""},
+                    {"skip", "0"},
+                    {"groupid", "0"},
+                    {"s_type", "1"},
+                    {"s_status_search", ""},
+                    {"s_keyword", ""},
+                    {"s_playercurrency", "ALL"},
+                    {"s_phone", "on"},
+                    {"s_email", "on"},
+                    {"data[0][name]", "sEcho"},
+                    {"data[0][value]", __secho_deposit++.ToString()},
+                    {"data[1][name]", "iColumns"},
+                    {"data[1][value]", "13"},
+                    {"data[2][name]", "sColumns"},
+                    {"data[2][value]", ""},
+                    {"data[3][name]", "iDisplayStart"},
+                    {"data[3][value]", "0"},
+                    {"data[4][name]", "iDisplayLength"},
+                    {"data[4][value]", "1"}
+                };
+
+                byte[] result_gettotal = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm_gettotal);
+                string responsebody_gettotatal = Encoding.UTF8.GetString(result_gettotal);
+
+                var deserializeObject_gettotal = JsonConvert.DeserializeObject(responsebody_gettotatal);
+                JObject jo_gettotal = JObject.Parse(deserializeObject_gettotal.ToString());
+                JToken jt_gettotal = jo_gettotal.SelectToken("$.iTotalRecords");
+                double get_total_records_fy = 0;
+                get_total_records_fy = double.Parse(jt_gettotal.ToString());
+
+                double result_total_records = get_total_records_fy / __display_length;
+
+                if (result_total_records.ToString().Contains("."))
+                {
+                    __total_page_deposit += Convert.ToInt32(Math.Floor(result_total_records)) + 1;
+                }
+                else
+                {
+                    __total_page_deposit += Convert.ToInt32(Math.Floor(result_total_records));
+                }
+
+                var reqparm = new NameValueCollection
+                {
+                    {"s_btype", ""},
+                    {"skip", "0"},
+                    {"groupid", "0"},
+                    {"s_type", "1"},
+                    {"s_status_search", ""},
+                    {"s_keyword", ""},
+                    {"s_playercurrency", "ALL"},
+                    {"data[0][name]", "sEcho"},
+                    {"data[0][value]", __secho_deposit++.ToString()},
+                    {"data[1][name]", "iColumns"},
+                    {"data[1][value]", "13"},
+                    {"data[2][name]", "sColumns"},
+                    {"data[2][value]", ""},
+                    {"data[3][name]", "iDisplayStart"},
+                    {"data[3][value]", "0"},
+                    {"data[4][name]", "iDisplayLength"},
+                    {"data[4][value]", __display_length.ToString()}
+                };
+
+                byte[] result = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm);
+                string responsebody = Encoding.UTF8.GetString(result);
+                var deserializeObject = JsonConvert.DeserializeObject(responsebody);
+
+                __jo_deposit = JObject.Parse(deserializeObject.ToString());
+                JToken count = __jo_deposit.SelectToken("$.aaData");
+                __result_count_json_deposit = count.Count();
+
+                ___PlayerListAsync_Deposit();
+            }
+            catch (Exception err)
+            {
+                ___GetPlayerListsRequest_Deposit();
+            }
+        }
+
+        private async void ___PlayerListAsync_Deposit()
+        {
+            List<string> player_info = new List<string>();
+
+            for (int i = 0; i < __total_page_deposit; i++)
+            {
+                if (__isBreak_deposit)
+                {
+                    break;
+                }
+
+                for (int ii = 0; ii < __result_count_json_deposit; ii++)
+                {
+                    Application.DoEvents();
+                    JToken username__id = __jo_deposit.SelectToken("$.aaData[" + ii + "][0]").ToString();
+                    string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
+                    __player_id_deposit = Regex.Match(username__id.ToString(), "player=\\\"(.*?)\\\"").Groups[1].Value;
+
+                    await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
+                    
+                    if (username != Properties.Settings.Default.______last_registered_player_deposit)
+                    {
+                        player_info.Add(username + "*|*" + __player_ldd_deposit);
+                    }
+                    else
+                    {
+                        if (player_info.Count != 0)
+                        {
+                            player_info.Reverse();
+                            string player_info_get = String.Join(",", player_info);
+                            string[] values = player_info_get.Split(',');
+                            foreach (string value in values)
+                            {
+                                Application.DoEvents();
+                                string[] values_inner = value.Split(new string[] { "*|*" }, StringSplitOptions.None);
+                                int count = 0;
+                                string _username = "";
+                                string _date_deposit = "";
+
+                                foreach (string value_inner in values_inner)
+                                {
+                                    count++;
+
+                                    // Username
+                                    if (count == 1)
+                                    {
+                                        _username = value_inner;
+                                    }
+                                    // Last Deposit Date
+                                    else if (count == 2)
+                                    {
+                                        _date_deposit = value_inner;
+                                    }
+                                }
+
+                                if (_date_deposit != "-")
+                                {
+                                    ___InsertData_Deposit(_username, _date_deposit, __brand_code);
+                                    __count_deposit = 0;
+                                }
+                            }
+
+                            player_info.Clear();
+                        }
+
+                        __isBreak_deposit = true;
+                        break;
+                    }
+                }
+            }
+            
+            ___GetPlayerListsRequest_Deposit();
+        }
+
+        private async Task ___PlayerListLastDeposit_Deposit(string id)
+        {
+            try
+            {
+                var cookie = Cookie.GetCookieInternal(webBrowser.Url, false);
+                WebClient wc = new WebClient();
+                wc.Headers.Add("Cookie", cookie);
+                wc.Encoding = Encoding.UTF8;
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+                string current_date = DateTime.Now.ToString("yyyy-MM-dd");
+                string result_gettotal_responsebody = await wc.DownloadStringTaskAsync("http://cs.ying168.bet/player/playerDeposit?uid=" + id + "&start=2016-06-15&end=");
+                var deserializeObject = JsonConvert.DeserializeObject(result_gettotal_responsebody);
+                JObject jo_fy_last_deposit = JObject.Parse(deserializeObject.ToString());
+                JToken last_deposit = jo_fy_last_deposit.SelectToken("$.last");
+                __player_ldd_deposit = last_deposit.ToString();
+            }
+            catch (Exception err)
+            {
+                await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
+            }
+        }
+        
+        private void ___InsertData_Deposit(string username, string last_deposit_date, string brand)
+        {
+            try
+            {
+                string password = username + last_deposit_date + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["username"] = username,
+                        ["date_deposit"] = last_deposit_date,
+                        ["brand_code"] = brand,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTCdep", "POST", data);
+                }
+            }
+            catch (Exception err)
+            {
+                __count_deposit++;
+                if (__count_deposit == 5)
+                {
+                    System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
+                    player.PlayLooping();
+
+                    DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (dr == DialogResult.OK)
+                    {
+                        player.Stop();
+                    }
+
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___InsertData2_Deposit(username, last_deposit_date, brand);
+                }
+            }
+        }
+        
+        private void ___InsertData2_Deposit(string username, string last_deposit_date, string brand)
+        {
+            try
+            {
+                string password = username + last_deposit_date + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["username"] = username,
+                        ["date_deposit"] = last_deposit_date,
+                        ["brand_code"] = brand,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTCdep", "POST", data);
+                }
+            }
+            catch (Exception err)
+            {
+                __count_deposit++;
+                if (__count_deposit == 5)
+                {
+                    System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
+                    player.PlayLooping();
+
+                    DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY", MessageBoxButtons.OK, MessageBoxIcon.Information);
+                    if (dr == DialogResult.OK)
+                    {
+                        player.Stop();
+                    }
+
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___InsertData_Deposit(username, last_deposit_date, brand);
+                }
+            }
         }
     }
 }
