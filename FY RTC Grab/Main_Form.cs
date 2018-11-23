@@ -318,10 +318,9 @@ namespace FY_RTC_Grab
                                 pictureBox_loader.Visible = true;
                                 label_player_last_registered.Visible = true;
                                 ___PlayerLastRegistered();
-                                Thread t1 = new Thread(delegate () { ___GetPlayerListsRequest(); });
-                                t1.Start();
-                                Thread t2 = new Thread(delegate () { ___GetPlayerListsRequest_Deposit(); });
-                                t2.Start();
+                                ___GetPlayerListsRequest();
+                                Thread t = new Thread(delegate () { ___GetPlayerListsRequest_Deposit(); });
+                                t.Start();
                                 webBrowser.WebBrowserShortcutsEnabled = false;
                             }
                         }
@@ -561,18 +560,12 @@ namespace FY_RTC_Grab
                             player_info.Clear();
                         }
 
-                        // comment
-                        //timer.Start();
-                        //__start_time = DateTime.Now.ToString("dd/MM/yyyy HH:mm:ss");
-                        //__end_time = DateTime.Now.AddSeconds(302).ToString("dd/MM/yyyy HH:mm:ss");
-
                         __isBreak = true;
                         break;
                     }
                 }
             }
             
-            // update
             ___GetPlayerListsRequest();
         }
 
@@ -792,15 +785,15 @@ namespace FY_RTC_Grab
         
         private void ___PlayerLastRegistered()
         {
-            // update this when deploy
+            // update this when deployment
             // todo
             if (Properties.Settings.Default.______last_registered_player == "")
             {
-                Properties.Settings.Default.______last_registered_player = "s346379130";
+                Properties.Settings.Default.______last_registered_player = "cj888888";
                 Properties.Settings.Default.Save();
             }
 
-            Properties.Settings.Default.______last_registered_player_deposit = "s346379130";
+            Properties.Settings.Default.______last_registered_player_deposit = "cj888888";
             Properties.Settings.Default.Save();
             
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
