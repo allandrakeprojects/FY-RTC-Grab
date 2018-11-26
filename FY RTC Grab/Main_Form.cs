@@ -319,8 +319,9 @@ namespace FY_RTC_Grab
                                 label_player_last_registered.Visible = true;
                                 ___PlayerLastRegistered();
                                 ___GetPlayerListsRequest();
-                                Thread t = new Thread(delegate () { ___GetPlayerListsRequest_Deposit(); });
-                                t.Start();
+                                ___GetPlayerListsRequest_Deposit();
+                                //Thread t = new Thread(delegate () {  });
+                                //t.Start();
                                 webBrowser.WebBrowserShortcutsEnabled = false;
                             }
                         }
@@ -560,12 +561,17 @@ namespace FY_RTC_Grab
                             player_info.Clear();
                         }
 
+                        timer.Start();
                         __isBreak = true;
                         break;
                     }
                 }
             }
-            
+        }
+        
+        private void timer_Tick(object sender, EventArgs e)
+        {
+            timer.Stop();
             ___GetPlayerListsRequest();
         }
 
@@ -592,6 +598,8 @@ namespace FY_RTC_Grab
                         ["email"] = email,
                         ["agent"] = agent,
                         ["brand_code"] = brand_code,
+                        ["qq"] = "",
+                        ["wc"] = "",
                         ["token"] = token
                     };
 
@@ -646,6 +654,8 @@ namespace FY_RTC_Grab
                         ["email"] = email,
                         ["agent"] = agent,
                         ["brand_code"] = brand_code,
+                        ["qq"] = "",
+                        ["wc"] = "",
                         ["token"] = token
                     };
 
@@ -918,65 +928,103 @@ namespace FY_RTC_Grab
 
                 for (int ii = 0; ii < __result_count_json_deposit; ii++)
                 {
-                    Application.DoEvents();
+                    // check if username exist in temp file
+                    if (!File.Exists(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt"))
+                    {
+                        using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt", true, Encoding.UTF8))
+                        {
+                            file.WriteLine("test123*|*");
+                        }
+                    }
+
                     JToken username__id = __jo_deposit.SelectToken("$.aaData[" + ii + "][0]").ToString();
                     string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
                     __player_id_deposit = Regex.Match(username__id.ToString(), "player=\\\"(.*?)\\\"").Groups[1].Value;
 
-                    await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
-                    
-                    if (username != Properties.Settings.Default.______last_registered_player_deposit)
+                    bool isInsert = false;
+
+                    using (StreamReader sr = File.OpenText(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt"))
                     {
-                        if (__player_ldd_deposit != "-")
+
+                        string s = String.Empty;
+                        while ((s = sr.ReadLine()) != null)
                         {
-                            player_info.Add(username + "*|*" + __player_ldd_deposit);
+                            Application.DoEvents();
+
+                            if (s == username)
+                            {
+                                isInsert = true;
+                                break;
+                            }
+                            else
+                            {
+                                isInsert = false;
+                            }
                         }
                     }
-                    else
+
+                    if (!isInsert)
                     {
-                        if (player_info.Count != 0)
+                        await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
+
+                        if (username != Properties.Settings.Default.______last_registered_player_deposit)
                         {
-                            player_info.Reverse();
-                            string player_info_get = String.Join(",", player_info);
-                            string[] values = player_info_get.Split(',');
-                            foreach (string value in values)
+                            if (__player_ldd_deposit != "-")
                             {
-                                Application.DoEvents();
-                                string[] values_inner = value.Split(new string[] { "*|*" }, StringSplitOptions.None);
-                                int count = 0;
-                                string _username = "";
-                                string _date_deposit = "";
-
-                                foreach (string value_inner in values_inner)
+                                player_info.Add(username + "*|*" + __player_ldd_deposit);
+                                // insert in temp file
+                                using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt", true, Encoding.UTF8))
                                 {
-                                    count++;
+                                    file.WriteLine(username);
+                                }
+                            }
+                        }
+                        else
+                        {
+                            if (player_info.Count != 0)
+                            {
+                                player_info.Reverse();
+                                string player_info_get = String.Join(",", player_info);
+                                string[] values = player_info_get.Split(',');
+                                foreach (string value in values)
+                                {
+                                    Application.DoEvents();
+                                    string[] values_inner = value.Split(new string[] { "*|*" }, StringSplitOptions.None);
+                                    int count = 0;
+                                    string _username = "";
+                                    string _date_deposit = "";
 
-                                    // Username
-                                    if (count == 1)
+                                    foreach (string value_inner in values_inner)
                                     {
-                                        _username = value_inner;
+                                        count++;
+
+                                        // Username
+                                        if (count == 1)
+                                        {
+                                            _username = value_inner;
+                                        }
+                                        // Last Deposit Date
+                                        else if (count == 2)
+                                        {
+                                            _date_deposit = value_inner;
+                                        }
                                     }
-                                    // Last Deposit Date
-                                    else if (count == 2)
-                                    {
-                                        _date_deposit = value_inner;
-                                    }
+                                    
+                                    ___InsertData_Deposit(_username, _date_deposit, __brand_code);
+                                    __count_deposit = 0;
                                 }
 
-                                ___InsertData_Deposit(_username, _date_deposit, __brand_code);
-                                __count_deposit = 0;
+                                player_info.Clear();
                             }
 
-                            player_info.Clear();
+                            __isBreak_deposit = true;
+                            break;
                         }
-
-                        __isBreak_deposit = true;
-                        break;
                     }
                 }
             }
-            
-            ___GetPlayerListsRequest_Deposit();
+
+            timer_deposit.Start();
         }
 
         private async Task ___PlayerListLastDeposit_Deposit(string id)
@@ -1095,6 +1143,12 @@ namespace FY_RTC_Grab
                     ___InsertData_Deposit(username, last_deposit_date, brand);
                 }
             }
+        }
+
+        private void timer_deposit_Tick(object sender, EventArgs e)
+        {
+            timer_deposit.Stop();
+            ___GetPlayerListsRequest_Deposit();
         }
     }
 }
