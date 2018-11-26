@@ -286,7 +286,8 @@ namespace FY_RTC_Grab
                                 player.PlayLooping();
                                 isPlaying = true;
                             }
-                            
+
+                            timer.Stop();
                             __isStart = false;
                             label_player_last_registered.Text = "-";
                             webBrowser.Document.Window.ScrollTo(0, webBrowser.Document.Body.ScrollRectangle.Height);
