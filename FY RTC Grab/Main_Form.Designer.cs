@@ -44,7 +44,6 @@
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.pictureBox_loader = new System.Windows.Forms.PictureBox();
             this.timer = new System.Windows.Forms.Timer(this.components);
-            this.timer_deposit = new System.Windows.Forms.Timer(this.components);
             this.panel_header.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_minimize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_close)).BeginInit();
@@ -187,7 +186,7 @@
             this.webBrowser.ScriptErrorsSuppressed = true;
             this.webBrowser.Size = new System.Drawing.Size(445, 402);
             this.webBrowser.TabIndex = 2;
-            this.webBrowser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser_DocumentCompleted);
+            this.webBrowser.DocumentCompleted += new System.Windows.Forms.WebBrowserDocumentCompletedEventHandler(this.webBrowser_DocumentCompletedAsync);
             // 
             // pictureBox_loader
             // 
@@ -204,12 +203,7 @@
             // timer
             // 
             this.timer.Interval = 60000;
-            this.timer.Tick += new System.EventHandler(this.timer_Tick);
-            // 
-            // timer_deposit
-            // 
-            this.timer_deposit.Interval = 60000;
-            this.timer_deposit.Tick += new System.EventHandler(this.timer_deposit_Tick);
+            this.timer.Tick += new System.EventHandler(this.timer_TickAsync);
             // 
             // Main_Form
             // 
@@ -261,6 +255,5 @@
         private System.Windows.Forms.PictureBox pictureBox_landing;
         private System.Windows.Forms.Timer timer_landing;
         private System.Windows.Forms.Timer timer;
-        private System.Windows.Forms.Timer timer_deposit;
     }
 }

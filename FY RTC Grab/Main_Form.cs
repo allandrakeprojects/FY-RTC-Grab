@@ -10,7 +10,6 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -40,6 +39,7 @@ namespace FY_RTC_Grab
 
         private JObject __jo_deposit;
         private bool __isBreak_deposit = false;
+        private bool __isInsert_deposit = false;
         private int __secho_deposit;
         private int __total_page_deposit;
         private int __result_count_json_deposit;
@@ -268,7 +268,7 @@ namespace FY_RTC_Grab
         }
 
         // WebBrowser
-        private void webBrowser_DocumentCompleted(object sender, WebBrowserDocumentCompletedEventArgs e)
+        private async void webBrowser_DocumentCompletedAsync(object sender, WebBrowserDocumentCompletedEventArgs e)
         {
             if (webBrowser.ReadyState == WebBrowserReadyState.Complete)
             {
@@ -317,12 +317,10 @@ namespace FY_RTC_Grab
                                 label_brand.Visible = true;
                                 pictureBox_loader.Visible = true;
                                 label_player_last_registered.Visible = true;
-                                ___PlayerLastRegistered();
-                                ___GetPlayerListsRequest();
-                                ___GetPlayerListsRequest_Deposit();
-                                //Thread t = new Thread(delegate () {  });
-                                //t.Start();
                                 webBrowser.WebBrowserShortcutsEnabled = false;
+                                ___PlayerLastRegistered();
+                                await ___GetPlayerListsRequest();
+                                ___GetPlayerListsRequest_Deposit();
                             }
                         }
                     }
@@ -345,7 +343,7 @@ namespace FY_RTC_Grab
         }
         
         // ------ Functions
-        private async void ___GetPlayerListsRequest()
+        private async Task ___GetPlayerListsRequest()
         {
             __isBreak = false;
             
@@ -434,7 +432,7 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                ___GetPlayerListsRequest();
+                await ___GetPlayerListsRequest();
             }
         }
 
@@ -569,10 +567,16 @@ namespace FY_RTC_Grab
             }
         }
         
-        private void timer_Tick(object sender, EventArgs e)
+        private async void timer_TickAsync(object sender, EventArgs e)
         {
             timer.Stop();
-            ___GetPlayerListsRequest();
+            await ___GetPlayerListsRequest();
+
+            if (__isInsert_deposit)
+            {
+                __isInsert_deposit = false;
+                ___GetPlayerListsRequest_Deposit();
+            }
         }
 
         private void ___InsertData(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
@@ -1023,8 +1027,8 @@ namespace FY_RTC_Grab
                     }
                 }
             }
-
-            timer_deposit.Start();
+            
+            __isInsert_deposit = true;
         }
 
         private async Task ___PlayerListLastDeposit_Deposit(string id)
@@ -1143,12 +1147,6 @@ namespace FY_RTC_Grab
                     ___InsertData_Deposit(username, last_deposit_date, brand);
                 }
             }
-        }
-
-        private void timer_deposit_Tick(object sender, EventArgs e)
-        {
-            timer_deposit.Stop();
-            ___GetPlayerListsRequest_Deposit();
         }
     }
 }
