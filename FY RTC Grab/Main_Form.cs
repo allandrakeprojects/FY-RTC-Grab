@@ -30,6 +30,7 @@ namespace FY_RTC_Grab
         private string __player_last_username = "";
         private string __playerlist_cn;
         private string __playerlist_ea;
+        private string __playerlist_qq;
         private string __player_id;
         private string __player_ldd;
         private string __start_time;
@@ -289,8 +290,8 @@ namespace FY_RTC_Grab
                             __isStart = false;
                             label_player_last_registered.Text = "-";
                             webBrowser.Document.Window.ScrollTo(0, webBrowser.Document.Body.ScrollRectangle.Height);
-                            webBrowser.Document.GetElementById("csname").SetAttribute("value", "fyrain");
-                            webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "djrain123@@@");
+                            webBrowser.Document.GetElementById("csname").SetAttribute("value", "central12");
+                            webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "abc123");
                             webBrowser.Document.GetElementById("la").Enabled = false;
                             webBrowser.Visible = true;
                             label_brand.Visible = false;
@@ -469,7 +470,7 @@ namespace FY_RTC_Grab
                         await ___PlayerListContactNumberEmailAsync(__player_id);
                         await ___PlayerListLastDeposit(__player_id);
                         
-                        player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent);
+                        player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent + "*|*" + __playerlist_qq);
                     }
                     else
                     {
@@ -501,6 +502,7 @@ namespace FY_RTC_Grab
                                 string _cn = "";
                                 string _email = "";
                                 string _agent = "";
+                                string _qq = "";
 
                                 foreach (string value_inner in values_inner)
                                 {
@@ -541,19 +543,28 @@ namespace FY_RTC_Grab
                                     {
                                         _agent = value_inner;
                                     }
+                                    // QQ
+                                    else if (count == 8)
+                                    {
+                                        _qq = value_inner;
+                                    }
                                 }
 
                                 // ----- Insert Data
                                 using (StreamWriter file = new StreamWriter(Environment.GetFolderPath(Environment.SpecialFolder.Desktop) + @"\test_fy.txt", true, Encoding.UTF8))
                                 {
-                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + __brand_code);
+                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
                                 }
                                 using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\test_fy.txt", true, Encoding.UTF8))
                                 {
-                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + __brand_code);
+                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
                                 }
-                                ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, __brand_code);
+                                ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code);
                                 __count = 0;
+
+                                __playerlist_cn = "";
+                                __playerlist_ea = "";
+                                __playerlist_qq = "";
                             }
                             
                             player_info.Clear();
@@ -579,7 +590,7 @@ namespace FY_RTC_Grab
             }
         }
 
-        private void ___InsertData(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
+        private void ___InsertData(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string qq, string brand_code)
         {
             try
             {
@@ -602,7 +613,7 @@ namespace FY_RTC_Grab
                         ["email"] = email,
                         ["agent"] = agent,
                         ["brand_code"] = brand_code,
-                        ["qq"] = "",
+                        ["qq"] = qq,
                         ["wc"] = "",
                         ["token"] = token
                     };
@@ -630,12 +641,12 @@ namespace FY_RTC_Grab
                 }
                 else
                 {
-                    ____InsertData2(username, name, date_register, date_deposit, contact, email, agent, brand_code);
+                    ____InsertData2(username, name, date_register, date_deposit, contact, email, agent, qq, brand_code);
                 }
             }
         }
 
-        private void ____InsertData2(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string brand_code)
+        private void ____InsertData2(string username, string name, string date_register, string date_deposit, string contact, string email, string agent, string qq, string brand_code)
         {
             try
             {
@@ -658,7 +669,7 @@ namespace FY_RTC_Grab
                         ["email"] = email,
                         ["agent"] = agent,
                         ["brand_code"] = brand_code,
-                        ["qq"] = "",
+                        ["qq"] = qq,
                         ["wc"] = "",
                         ["token"] = token
                     };
@@ -686,7 +697,7 @@ namespace FY_RTC_Grab
                 }
                 else
                 {
-                    ___InsertData(username, name, date_register, date_deposit, contact, email, agent, brand_code);
+                    ___InsertData(username, name, date_register, date_deposit, contact, email, agent, qq, brand_code);
                 }
             }
         }
@@ -706,10 +717,13 @@ namespace FY_RTC_Grab
                 int i_label = 0;
                 int cn = 0;
                 int ea = 0;
+                int qq = 0;
                 bool cn_detect = false;
                 bool ea_detect = false;
+                bool qq_detect = false;
                 bool cn_ = false;
                 bool ea_ = false;
+                bool qq_ = false;
 
                 Regex ItemRegex_label = new Regex("<label class=\"control-label\">(.*?)</label>", RegexOptions.Compiled);
                 foreach (Match ItemMatch in ItemRegex_label.Matches(result_gettotal_responsebody))
@@ -727,6 +741,11 @@ namespace FY_RTC_Grab
                         ea = i_label;
                         ea_detect = true;
                     }
+                    else if (item.Contains("QQ"))
+                    {
+                        qq = i_label;
+                        qq_detect = true;
+                    }
                     else if (item.Contains("Agent No") || item.Contains("代理编号"))
                     {
                         if (!cn_detect)
@@ -737,6 +756,11 @@ namespace FY_RTC_Grab
                         if (!ea_detect)
                         {
                             ea_ = true;
+                        }
+
+                        if (!qq_detect)
+                        {
+                            qq_ = true;
                         }
                     }
                 }
@@ -749,6 +773,11 @@ namespace FY_RTC_Grab
                 if (ea_)
                 {
                     ea--;
+                }
+
+                if (qq_)
+                {
+                    qq--;
                 }
 
                 int i_span = 0;
@@ -766,6 +795,10 @@ namespace FY_RTC_Grab
                     else if (i_span == ea)
                     {
                         __playerlist_ea = ItemMatch.Groups[1].Value;
+                    }
+                    else if (i_span == qq)
+                    {
+                        __playerlist_qq = ItemMatch.Groups[1].Value;
                     }
                 }
             }
@@ -803,11 +836,11 @@ namespace FY_RTC_Grab
             // todo
             if (Properties.Settings.Default.______last_registered_player == "")
             {
-                Properties.Settings.Default.______last_registered_player = "cj888888";
+                Properties.Settings.Default.______last_registered_player = "716391";
                 Properties.Settings.Default.Save();
             }
-
-            Properties.Settings.Default.______last_registered_player_deposit = "cj888888";
+            
+            Properties.Settings.Default.______last_registered_player_deposit = "716391";
             Properties.Settings.Default.Save();
             
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
