@@ -38,6 +38,7 @@ namespace FY_RTC_Grab
         private string __brand_code = "FY";
         private int __count = 0;
 
+        // Deposit
         private JObject __jo_deposit;
         private bool __isBreak_deposit = false;
         private bool __isInsert_deposit = false;
