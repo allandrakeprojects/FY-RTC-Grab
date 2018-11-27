@@ -614,9 +614,9 @@ namespace FY_RTC_Grab
                         ["contact"] = contact,
                         ["email"] = email,
                         ["agent"] = agent,
-                        ["brand_code"] = brand_code,
                         ["qq"] = qq,
                         ["wc"] = "",
+                        ["brand_code"] = brand_code,
                         ["token"] = token
                     };
 
@@ -670,9 +670,9 @@ namespace FY_RTC_Grab
                         ["contact"] = contact,
                         ["email"] = email,
                         ["agent"] = agent,
-                        ["brand_code"] = brand_code,
                         ["qq"] = qq,
                         ["wc"] = "",
+                        ["brand_code"] = brand_code,
                         ["token"] = token
                     };
 
