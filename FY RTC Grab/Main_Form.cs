@@ -10,6 +10,7 @@ using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
@@ -48,6 +49,7 @@ namespace FY_RTC_Grab
         private int __count_deposit = 0;
         private string __player_ldd_deposit;
         private string __player_id_deposit;
+        private bool __detectInsert_deposit = false;
 
         // Drag Header to Move
         [DllImport("user32.dll")]
@@ -431,7 +433,7 @@ namespace FY_RTC_Grab
                 JToken count = __jo.SelectToken("$.aaData");
                 __result_count_json = count.Count();
                 
-                ___PlayerListAsync();
+                await ___PlayerListAsync();
             }
             catch (Exception err)
             {
@@ -439,7 +441,7 @@ namespace FY_RTC_Grab
             }
         }
 
-        private async void ___PlayerListAsync()
+        private async Task ___PlayerListAsync()
         {
             List<string> player_info = new List<string>();
 
@@ -476,16 +478,6 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
-                        if (!String.IsNullOrEmpty(__player_last_username.Trim()))
-                        {
-                            ___SavePlayerLastRegistered(__player_last_username);
-
-                            Invoke(new Action(() =>
-                            {
-                                label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
-                            }));
-                        }
-
                         // send to api
                         if (player_info.Count != 0)
                         {
@@ -528,7 +520,14 @@ namespace FY_RTC_Grab
                                     // Last Deposit Date
                                     else if (count == 4)
                                     {
-                                        _date_deposit = value_inner;
+                                        if (value_inner != "-")
+                                        {
+                                            _date_deposit = value_inner;
+                                        }
+                                        else
+                                        {
+                                            _date_deposit = "";
+                                        }
                                     }
                                     // Contact Number
                                     else if (count == 5)
@@ -561,7 +560,10 @@ namespace FY_RTC_Grab
                                 {
                                     file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
                                 }
-                                ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code);
+
+                                Thread t = new Thread(delegate () { ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code); });
+                                t.Start();
+                                
                                 __count = 0;
 
                                 __playerlist_cn = "";
@@ -570,6 +572,16 @@ namespace FY_RTC_Grab
                             }
                             
                             player_info.Clear();
+                        }
+
+                        if (!String.IsNullOrEmpty(__player_last_username.Trim()))
+                        {
+                            ___SavePlayerLastRegistered(__player_last_username);
+
+                            Invoke(new Action(() =>
+                            {
+                                label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+                            }));
                         }
 
                         timer.Start();
@@ -838,11 +850,11 @@ namespace FY_RTC_Grab
             // todo
             if (Properties.Settings.Default.______last_registered_player == "")
             {
-                Properties.Settings.Default.______last_registered_player = "716391";
+                Properties.Settings.Default.______last_registered_player = "yxs6956";
                 Properties.Settings.Default.Save();
             }
             
-            Properties.Settings.Default.______last_registered_player_deposit = "716391";
+            Properties.Settings.Default.______last_registered_player_deposit = "yi66669";
             Properties.Settings.Default.Save();
             
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
@@ -953,7 +965,7 @@ namespace FY_RTC_Grab
                 ___GetPlayerListsRequest_Deposit();
             }
         }
-
+        
         private async void ___PlayerListAsync_Deposit()
         {
             List<string> player_info = new List<string>();
@@ -978,6 +990,12 @@ namespace FY_RTC_Grab
 
                     JToken username__id = __jo_deposit.SelectToken("$.aaData[" + ii + "][0]").ToString();
                     string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
+
+                    if (username == Properties.Settings.Default.______last_registered_player)
+                    {
+                        __detectInsert_deposit = true;
+                    }
+
                     __player_id_deposit = Regex.Match(username__id.ToString(), "player=\\\"(.*?)\\\"").Groups[1].Value;
 
                     bool isInsert = false;
@@ -1009,16 +1027,19 @@ namespace FY_RTC_Grab
 
                     if (username != Properties.Settings.Default.______last_registered_player_deposit)
                     {
-                        if (__player_ldd_deposit != "-")
+                        if (!isInsert)
                         {
-                            if (!isInsert)
+                            if (__detectInsert_deposit)
                             {
-                                player_info.Add(username + "*|*" + __player_ldd_deposit);
-
-                                using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt", true, Encoding.UTF8))
+                                if (__player_ldd_deposit != "-")
                                 {
-                                    file.WriteLine(username);
-                                    file.Close();
+                                    player_info.Add(username + "*|*" + __player_ldd_deposit);
+
+                                    using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt", true, Encoding.UTF8))
+                                    {
+                                        file.WriteLine(username);
+                                        file.Close();
+                                    }
                                 }
                             }
                         }
@@ -1050,11 +1071,20 @@ namespace FY_RTC_Grab
                                     // Last Deposit Date
                                     else if (count == 2)
                                     {
-                                        _date_deposit = value_inner;
+                                        if (value_inner != "-")
+                                        {
+                                            _date_deposit = value_inner;
+                                        }
+                                        else
+                                        {
+                                            _date_deposit = "";
+                                        }
                                     }
                                 }
-                                    
-                                ___InsertData_Deposit(_username, _date_deposit, __brand_code);
+
+                                Thread t = new Thread(delegate () { ___InsertData_Deposit(_username, _date_deposit, __brand_code); });
+                                t.Start();
+                                
                                 __count_deposit = 0;
                             }
 
@@ -1062,6 +1092,7 @@ namespace FY_RTC_Grab
                         }
 
                         __isBreak_deposit = true;
+                        __detectInsert_deposit = false;
                         break;
                     }
                 }
@@ -1161,7 +1192,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus.ssimakati.com:8080/API/sendRTCdep", "POST", data);
+                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/sendRTCdep", "POST", data);
                 }
             }
             catch (Exception err)
