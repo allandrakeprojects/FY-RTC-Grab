@@ -1000,36 +1000,39 @@ namespace FY_RTC_Grab
 
                     bool isInsert = false;
 
-                    using (StreamReader sr = File.OpenText(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt"))
+                    if (__detectInsert_deposit)
                     {
-                        string s = String.Empty;
-                        while ((s = sr.ReadLine()) != null)
+                        using (StreamReader sr = File.OpenText(Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt"))
                         {
-                            Application.DoEvents();
+                            string s = String.Empty;
+                            while ((s = sr.ReadLine()) != null)
+                            {
+                                Application.DoEvents();
 
-                            if (s == username)
-                            {
-                                isInsert = true;
-                                break;
+                                if (s == username)
+                                {
+                                    isInsert = true;
+                                    break;
+                                }
+                                else
+                                {
+                                    isInsert = false;
+                                }
                             }
-                            else
-                            {
-                                isInsert = false;
-                            }
+                            sr.Close();
                         }
-                        sr.Close();
-                    }
 
-                    if (!isInsert)
-                    {
-                        await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
+                        if (!isInsert)
+                        {
+                            await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
+                        }
                     }
 
                     if (username != Properties.Settings.Default.______last_registered_player_deposit)
                     {
-                        if (!isInsert)
+                        if (__detectInsert_deposit)
                         {
-                            if (__detectInsert_deposit)
+                            if (!isInsert)
                             {
                                 if (__player_ldd_deposit != "-")
                                 {
