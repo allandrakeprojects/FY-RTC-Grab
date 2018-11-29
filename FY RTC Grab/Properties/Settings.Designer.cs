@@ -46,5 +46,17 @@ namespace FY_RTC_Grab.Properties {
                 this["______last_registered_player_deposit"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string ______detect_deposit {
+            get {
+                return ((string)(this["______detect_deposit"]));
+            }
+            set {
+                this["______detect_deposit"] = value;
+            }
+        }
     }
 }
