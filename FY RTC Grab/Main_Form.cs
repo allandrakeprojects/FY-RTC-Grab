@@ -60,7 +60,7 @@ namespace FY_RTC_Grab
         public const int WM_NCLBUTTONDOWN = 0xA1;
         public const int HT_CAPTION = 0x2;
         // ----- Drag Header to Move
-        
+
         // Form Shadow
         [DllImport("Gdi32.dll", EntryPoint = "CreateRoundRectRgn")]
         private static extern IntPtr CreateRoundRectRgn
@@ -147,11 +147,12 @@ namespace FY_RTC_Grab
                 m.Result = (IntPtr)HTCAPTION;
         }
         // ----- Form Shadow
-        
+
         public Main_Form()
         {
             InitializeComponent();
 
+            ___DepositLastRegistered();
             timer_landing.Start();
         }
 
@@ -347,12 +348,12 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
+
         // ------ Functions
         private async Task ___GetPlayerListsRequest()
         {
             __isBreak = false;
-            
+
             try
             {
                 var cookie = Cookie.GetCookieInternal(webBrowser.Url, false);
@@ -393,7 +394,7 @@ namespace FY_RTC_Grab
                 JToken jt_gettotal = jo_gettotal.SelectToken("$.iTotalRecords");
                 double get_total_records_fy = 0;
                 get_total_records_fy = double.Parse(jt_gettotal.ToString());
-                
+
                 double result_total_records = get_total_records_fy / __display_length;
 
                 if (result_total_records.ToString().Contains("."))
@@ -403,7 +404,7 @@ namespace FY_RTC_Grab
                 else
                 {
                     __total_page += Convert.ToInt32(Math.Floor(result_total_records));
-                }                
+                }
 
                 var reqparm = new NameValueCollection
                 {
@@ -425,7 +426,7 @@ namespace FY_RTC_Grab
                     {"data[4][name]", "iDisplayLength"},
                     {"data[4][value]", __display_length.ToString()}
                 };
-                
+
                 byte[] result = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm);
                 string responsebody = Encoding.UTF8.GetString(result);
                 var deserializeObject = JsonConvert.DeserializeObject(responsebody);
@@ -433,7 +434,7 @@ namespace FY_RTC_Grab
                 __jo = JObject.Parse(deserializeObject.ToString());
                 JToken count = __jo.SelectToken("$.aaData");
                 __result_count_json = count.Count();
-                
+
                 await ___PlayerListAsync();
             }
             catch (Exception err)
@@ -464,17 +465,17 @@ namespace FY_RTC_Grab
                     JToken date_register__register_domain = __jo.SelectToken("$.aaData[" + ii + "][12]");
                     string date_register = date_register__register_domain.ToString().Substring(0, 10);
                     string date_time_register = date_register__register_domain.ToString().Substring(14, 8);
-                    
+
                     if (username != Properties.Settings.Default.______last_registered_player)
                     {
                         if (ii == 0)
                         {
                             __player_last_username = username;
                         }
-                        
+
                         await ___PlayerListContactNumberEmailAsync(__player_id);
                         await ___PlayerListLastDeposit(__player_id);
-                        
+
                         player_info.Add(username + "*|*" + name + "*|*" + date_register + " " + date_time_register + "*|*" + __player_ldd + "*|*" + __playerlist_cn + "*|*" + __playerlist_ea + "*|*" + agent + "*|*" + __playerlist_qq);
                     }
                     else
@@ -564,14 +565,14 @@ namespace FY_RTC_Grab
 
                                 Thread t = new Thread(delegate () { ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code); });
                                 t.Start();
-                                
+
                                 __count = 0;
 
                                 __playerlist_cn = "";
                                 __playerlist_ea = "";
                                 __playerlist_qq = "";
                             }
-                            
+
                             player_info.Clear();
                         }
 
@@ -592,7 +593,7 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
+
         private async void timer_TickAsync(object sender, EventArgs e)
         {
             timer.Stop();
@@ -615,7 +616,7 @@ namespace FY_RTC_Grab
                 string token = BitConverter.ToString(hash)
                    .Replace("-", string.Empty)
                    .ToLower();
-                
+
                 using (var wb = new WebClient())
                 {
                     var data = new NameValueCollection
@@ -716,7 +717,7 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
+
         private async Task ___PlayerListContactNumberEmailAsync(string id)
         {
             try
@@ -745,7 +746,7 @@ namespace FY_RTC_Grab
                 {
                     string item = ItemMatch.Groups[1].Value;
                     i_label++;
-                    
+
                     if (item.Contains("Cellphone No") || item.Contains("手机号"))
                     {
                         cn = i_label;
@@ -844,20 +845,23 @@ namespace FY_RTC_Grab
                 await ___PlayerListLastDeposit(__player_id);
             }
         }
-        
+
         private void ___PlayerLastRegistered()
         {
             // update this when deployment
             // todo
             if (Properties.Settings.Default.______last_registered_player == "")
             {
-                Properties.Settings.Default.______last_registered_player = "wse520";
+                Properties.Settings.Default.______last_registered_player = "tyu48j9";
                 Properties.Settings.Default.Save();
             }
-            
-            Properties.Settings.Default.______last_registered_player_deposit = "wse520";
-            Properties.Settings.Default.Save();
-            
+
+            if (Properties.Settings.Default.______last_registered_player_deposit == "")
+            {
+                Properties.Settings.Default.______last_registered_player_deposit = "tyu48j9";
+                Properties.Settings.Default.Save();
+            }
+
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
         }
 
@@ -866,13 +870,13 @@ namespace FY_RTC_Grab
             Properties.Settings.Default.______last_registered_player = username;
             Properties.Settings.Default.Save();
         }
-        
+
         private void timer_landing_Tick(object sender, EventArgs e)
         {
             panel_landing.Visible = false;
             timer_landing.Stop();
         }
-        
+
         // Deposit
         private async void ___GetPlayerListsRequest_Deposit()
         {
@@ -966,7 +970,7 @@ namespace FY_RTC_Grab
                 ___GetPlayerListsRequest_Deposit();
             }
         }
-        
+
         private async void ___PlayerListAsync_Deposit()
         {
             List<string> player_info = new List<string>();
@@ -1089,7 +1093,7 @@ namespace FY_RTC_Grab
 
                                 Thread t = new Thread(delegate () { ___InsertData_Deposit(_username, _date_deposit, __brand_code); });
                                 t.Start();
-                                
+
                                 __count_deposit = 0;
                             }
 
@@ -1102,7 +1106,8 @@ namespace FY_RTC_Grab
                     }
                 }
             }
-            
+
+            ___DepositLastRegistered();
             __isInsert_deposit = true;
         }
 
@@ -1127,7 +1132,7 @@ namespace FY_RTC_Grab
                 await ___PlayerListLastDeposit_Deposit(__player_id_deposit);
             }
         }
-        
+
         private void ___InsertData_Deposit(string username, string last_deposit_date, string brand)
         {
             try
@@ -1175,7 +1180,7 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
+
         private void ___InsertData2_Deposit(string username, string last_deposit_date, string brand)
         {
             try
@@ -1224,56 +1229,49 @@ namespace FY_RTC_Grab
             }
         }
 
-        private void timer_deposit_last_registered_Tick(object sender, EventArgs e)
+        private void ___DepositLastRegistered()
         {
             string path = Path.GetTempPath() + @"\rtcgrab_fy_deposit.txt";
-            if (__isInsert_deposit)
+            if (label_player_last_registered.Text != "-" && label_player_last_registered.Text.Trim() != "")
             {
-                if (label_player_last_registered.Text != "-" && label_player_last_registered.Text.Trim() != "")
+                if (Properties.Settings.Default.______detect_deposit == "")
                 {
-                    if (Properties.Settings.Default.______detect_deposit == "")
+                    DateTime today = DateTime.Now;
+                    DateTime date = today.AddDays(1);
+                    Properties.Settings.Default.______detect_deposit = date.ToString("yyyy-MM-dd 23");
+                    Properties.Settings.Default.Save();
+                }
+                else
+                {
+                    DateTime today = DateTime.Now;
+                    if (Properties.Settings.Default.______detect_deposit == today.ToString("yyyy-MM-dd HH"))
                     {
-                        DateTime today = DateTime.Now;
-                        DateTime date = today.AddDays(1);
-                        Properties.Settings.Default.______detect_deposit = date.ToString("yyyy-MM-dd 23");
+                        Properties.Settings.Default.______detect_deposit = "";
+                        Properties.Settings.Default.______last_registered_player_deposit = label_player_last_registered.Text.Replace("Last Registered: ", "");
                         Properties.Settings.Default.Save();
+
+                        if (File.Exists(path))
+                        {
+                            File.Delete(path);
+                        }
                     }
                     else
                     {
-                        DateTime today = DateTime.Now;
-                        if (Properties.Settings.Default.______detect_deposit == today.ToString("yyyy-MM-dd HH"))
+                        string start_datetime = today.ToString("yyyy-MM-dd HH");
+                        DateTime start = DateTime.ParseExact(start_datetime, "yyyy-MM-dd HH", CultureInfo.InvariantCulture);
+
+                        string end_datetime = Properties.Settings.Default.______detect_deposit;
+                        DateTime end = DateTime.ParseExact(end_datetime, "yyyy-MM-dd HH", CultureInfo.InvariantCulture);
+
+                        if (start > end)
                         {
                             Properties.Settings.Default.______detect_deposit = "";
-                            Properties.Settings.Default.Save();
-
-                            Properties.Settings.Default.______last_registered_player_deposit = label_player_last_registered.Text;
+                            Properties.Settings.Default.______last_registered_player_deposit = label_player_last_registered.Text.Replace("Last Registered: ", "");
                             Properties.Settings.Default.Save();
 
                             if (File.Exists(path))
                             {
                                 File.Delete(path);
-                            }
-                        }
-                        else
-                        {
-                            string start_datetime = today.ToString("yyyy-MM-dd HH");
-                            DateTime start = DateTime.ParseExact(start_datetime, "yyyy-MM-dd HH", CultureInfo.InvariantCulture);
-
-                            string end_datetime = Properties.Settings.Default.______detect_deposit;
-                            DateTime end = DateTime.ParseExact(end_datetime, "yyyy-MM-dd HH", CultureInfo.InvariantCulture);
-
-                            if (start > end)
-                            {
-                                Properties.Settings.Default.______detect_deposit = "";
-                                Properties.Settings.Default.Save();
-
-                                Properties.Settings.Default.______last_registered_player_deposit = label_player_last_registered.Text;
-                                Properties.Settings.Default.Save();
-
-                                if (File.Exists(path))
-                                {
-                                    File.Delete(path);
-                                }
                             }
                         }
                     }
