@@ -571,8 +571,6 @@ namespace FY_RTC_Grab
                                 __playerlist_ea = "";
                                 __playerlist_qq = "";
                             }
-
-                            player_info.Clear();
                         }
 
                         if (!String.IsNullOrEmpty(__player_last_username.Trim()))
@@ -585,6 +583,7 @@ namespace FY_RTC_Grab
                             }));
                         }
 
+                        player_info.Clear();
                         timer.Start();
                         __isBreak = true;
                         break;
@@ -1096,9 +1095,9 @@ namespace FY_RTC_Grab
                                 __count_deposit = 0;
                             }
 
-                            player_info.Clear();
                         }
 
+                        player_info.Clear();
                         __isBreak_deposit = true;
                         __detectInsert_deposit = false;
                         break;
