@@ -151,8 +151,7 @@ namespace FY_RTC_Grab
         public Main_Form()
         {
             InitializeComponent();
-
-            ___DepositLastRegistered();
+            
             timer_landing.Start();
         }
 
