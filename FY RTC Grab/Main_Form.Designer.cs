@@ -44,6 +44,7 @@
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.pictureBox_loader = new System.Windows.Forms.PictureBox();
             this.timer = new System.Windows.Forms.Timer(this.components);
+            this.timer_fill = new System.Windows.Forms.Timer(this.components);
             this.panel_header.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_minimize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_close)).BeginInit();
@@ -205,6 +206,10 @@
             this.timer.Interval = 60000;
             this.timer.Tick += new System.EventHandler(this.timer_TickAsync);
             // 
+            // timer_fill
+            // 
+            this.timer_fill.Interval = 2000;
+            // 
             // Main_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -255,5 +260,6 @@
         private System.Windows.Forms.PictureBox pictureBox_landing;
         private System.Windows.Forms.Timer timer_landing;
         private System.Windows.Forms.Timer timer;
+        private System.Windows.Forms.Timer timer_fill;
     }
 }
