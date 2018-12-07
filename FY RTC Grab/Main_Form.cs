@@ -1408,13 +1408,13 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
-                        ___GetLastRegisteredPlaye2();
+                        ___GetLastRegisteredPlayer2();
                     }
                 }
             }
         }
 
-        private void ___GetLastRegisteredPlaye2()
+        private void ___GetLastRegisteredPlayer2()
         {
             try
             {
