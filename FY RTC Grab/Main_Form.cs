@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -295,12 +296,11 @@ namespace FY_RTC_Grab
                     {
                         if (webBrowser.Url.ToString().Equals("http://cs.ying168.bet/account/login"))
                         {
-                            System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                            bool isPlaying = false;
                             if (__isStart)
                             {
-                                player.PlayLooping();
-                                isPlaying = true;
+                                string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                                SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>The application have been logout, please re-login again.</b></body></html>");
+                                SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>The application have been logout, please re-login again.</b></body></html>");
                             }
                             
                             __isLogin = false;
@@ -316,15 +316,6 @@ namespace FY_RTC_Grab
                             pictureBox_loader.Visible = false;
                             label_player_last_registered.Visible = false;
                             webBrowser.WebBrowserShortcutsEnabled = true;
-
-                            if (isPlaying)
-                            {
-                                DialogResult dr = MessageBox.Show("You've been logout please login again.", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                                if (dr == DialogResult.OK)
-                                {
-                                    player.Stop();
-                                }
-                            }
                         }
 
                         if (webBrowser.Url.ToString().Equals("http://cs.ying168.bet/player/list") || webBrowser.Url.ToString().Equals("http://cs.ying168.bet/site/index") || webBrowser.Url.ToString().Equals("http://cs.ying168.bet/player/online") || webBrowser.Url.ToString().Equals("http://cs.ying168.bet/message/platform"))
@@ -347,14 +338,9 @@ namespace FY_RTC_Grab
                     }
                     catch (Exception err)
                     {
-                        System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                        player.PlayLooping();
-
-                        DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        if (dr == DialogResult.OK)
-                        {
-                            player.Stop();
-                        }
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -661,14 +647,9 @@ namespace FY_RTC_Grab
                     __count++;
                     if (__count == 5)
                     {
-                        System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                        player.PlayLooping();
-
-                        DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        if (dr == DialogResult.OK)
-                        {
-                            player.Stop();
-                        }
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -720,14 +701,9 @@ namespace FY_RTC_Grab
                     __count++;
                     if (__count == 5)
                     {
-                        System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                        player.PlayLooping();
-
-                        DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        if (dr == DialogResult.OK)
-                        {
-                            player.Stop();
-                        }
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -876,18 +852,9 @@ namespace FY_RTC_Grab
 
         private void ___PlayerLastRegistered()
         {
-            // update this when deployment
-            // todo
-            if (Properties.Settings.Default.______last_registered_player == "")
+            if (Properties.Settings.Default.______last_registered_player == "" && Properties.Settings.Default.______last_registered_player_deposit == "")
             {
-                Properties.Settings.Default.______last_registered_player = "rich921009";
-                Properties.Settings.Default.Save();
-            }
-
-            if (Properties.Settings.Default.______last_registered_player_deposit == "")
-            {
-                Properties.Settings.Default.______last_registered_player_deposit = "rich921009";
-                Properties.Settings.Default.Save();
+                ___GetLastRegisteredPlayer();
             }
 
             label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
@@ -1198,14 +1165,9 @@ namespace FY_RTC_Grab
                     __count_deposit++;
                     if (__count_deposit == 5)
                     {
-                        System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                        player.PlayLooping();
-
-                        DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        if (dr == DialogResult.OK)
-                        {
-                            player.Stop();
-                        }
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -1249,14 +1211,9 @@ namespace FY_RTC_Grab
                     __count_deposit++;
                     if (__count_deposit == 5)
                     {
-                        System.Media.SoundPlayer player = new System.Media.SoundPlayer(Properties.Resources.rtc_grab);
-                        player.PlayLooping();
-
-                        DialogResult dr = MessageBox.Show("There's a problem to the server. Please call IT Support, thank you!", "FY RTC Grab", MessageBoxButtons.OK, MessageBoxIcon.Information);
-                        if (dr == DialogResult.OK)
-                        {
-                            player.Stop();
-                        }
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -1314,6 +1271,196 @@ namespace FY_RTC_Grab
                                 File.Delete(path);
                             }
                         }
+                    }
+                }
+            }
+        }
+
+        private void SendEmail(string get_message)
+        {
+            try
+            {
+                int port = 587;
+                string host = "smtp.gmail.com";
+                string username = "drake@18tech.com";
+                string password = "Wcfajmeojnapa1";
+                string mailFrom = "noreply@mail.com";
+                string mailTo = "it@18tech.com";
+                string mailTitle = "FY RTC Grab";
+                string mailMessage = get_message;
+
+                using (SmtpClient client = new SmtpClient())
+                {
+                    MailAddress from = new MailAddress(mailFrom);
+                    MailMessage message = new MailMessage
+                    {
+                        From = from
+                    };
+                    message.To.Add(mailTo);
+                    message.Subject = mailTitle;
+                    message.Body = mailMessage;
+                    message.IsBodyHtml = true;
+                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    client.UseDefaultCredentials = false;
+                    client.Host = host;
+                    client.Port = port;
+                    client.EnableSsl = true;
+                    client.Credentials = new NetworkCredential
+                    {
+                        UserName = username,
+                        Password = password
+                    };
+                    client.Send(message);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.ToString());
+            }
+        }
+
+        private void SendEmail2(string get_message)
+        {
+            try
+            {
+                int port = 587;
+                string host = "smtp.gmail.com";
+                string username = "drake@18tech.com";
+                string password = "Wcfajmeojnapa1";
+                string mailFrom = "noreply@mail.com";
+                string mailTo = "allandulay69@gmail.com";
+                string mailTitle = "FY RTC Grab";
+                string mailMessage = get_message;
+
+                using (SmtpClient client = new SmtpClient())
+                {
+                    MailAddress from = new MailAddress(mailFrom);
+                    MailMessage message = new MailMessage
+                    {
+                        From = from
+                    };
+                    message.To.Add(mailTo);
+                    message.Subject = mailTitle;
+                    message.Body = mailMessage;
+                    message.IsBodyHtml = true;
+                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                    client.UseDefaultCredentials = false;
+                    client.Host = host;
+                    client.Port = port;
+                    client.EnableSsl = true;
+                    client.Credentials = new NetworkCredential
+                    {
+                        UserName = username,
+                        Password = password
+                    };
+                    client.Send(message);
+                }
+            }
+            catch (Exception err)
+            {
+                MessageBox.Show(err.ToString());
+            }
+        }
+        
+        private void ___GetLastRegisteredPlayer()
+        {
+            try
+            {
+                string password = __brand_code + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["brand_code"] = __brand_code,
+                        ["token"] = token
+                    };
+
+                    var result = wb.UploadValues("http://zeus.ssimakati.com:8080/API/lastRTCrecord", "POST", data);
+                    string responsebody = Encoding.UTF8.GetString(result);
+                    var deserializeObject = JsonConvert.DeserializeObject(responsebody);
+                    JObject jo = JObject.Parse(deserializeObject.ToString());
+                    JToken plr = jo.SelectToken("$.msg");
+
+                    Properties.Settings.Default.______last_registered_player = plr.ToString();                    
+                    Properties.Settings.Default.______last_registered_player_deposit = plr.ToString();
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    __count++;
+                    if (__count == 5)
+                    {
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___GetLastRegisteredPlaye2();
+                    }
+                }
+            }
+        }
+
+        private void ___GetLastRegisteredPlaye2()
+        {
+            try
+            {
+                string password = __brand_code + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["brand_code"] = __brand_code,
+                        ["token"] = token
+                    };
+
+                    var result = wb.UploadValues("http://zeus2.ssitex.com:8080/API/lastRTCrecord", "POST", data);
+                    string responsebody = Encoding.UTF8.GetString(result);
+                    var deserializeObject = JsonConvert.DeserializeObject(responsebody);
+                    JObject jo = JObject.Parse(deserializeObject.ToString());
+                    JToken plr = jo.SelectToken("$.msg");
+
+                    Properties.Settings.Default.______last_registered_player = plr.ToString();
+                    Properties.Settings.Default.______last_registered_player_deposit = plr.ToString();
+                    Properties.Settings.Default.Save();
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    __count++;
+                    if (__count == 5)
+                    {
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendEmail("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+                        SendEmail2("<html><body>IP: 192.168.10.252<br/>Location: Robisons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Message: <b>There's a problem to the server, please re-open the application.</b></body></html>");
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___GetLastRegisteredPlayer();
                     }
                 }
             }
