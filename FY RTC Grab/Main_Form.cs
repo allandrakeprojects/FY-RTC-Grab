@@ -54,6 +54,7 @@ namespace FY_RTC_Grab
         private string __player_ldd_deposit;
         private string __player_id_deposit;
         private bool __detectInsert_deposit = false;
+        private int __send_email = 0;
 
         // Drag Header to Move
         [DllImport("user32.dll")]
@@ -1321,7 +1322,15 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString());
+                __send_email++;
+                if (__send_email <= 5)
+                {
+                    SendEmail(get_message);
+                }
+                else
+                {
+                    MessageBox.Show(err.ToString());
+                }
             }
         }
 
@@ -1364,7 +1373,15 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                MessageBox.Show(err.ToString());
+                __send_email++;
+                if (__send_email <= 5)
+                {
+                    SendEmail2(get_message);
+                }
+                else
+                {
+                    MessageBox.Show(err.ToString());
+                }
             }
         }
                 
