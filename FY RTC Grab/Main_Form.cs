@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.Diagnostics;
+using System.Drawing;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -16,6 +17,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using Excel = Microsoft.Office.Interop.Excel;
 
 namespace FY_RTC_Grab
 {
@@ -317,8 +319,10 @@ namespace FY_RTC_Grab
                             timer.Stop();
                             label_player_last_registered.Text = "-";
                             webBrowser.Document.Window.ScrollTo(0, webBrowser.Document.Body.ScrollRectangle.Height);
-                            webBrowser.Document.GetElementById("csname").SetAttribute("value", "fyrtcgrab");
-                            webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "rg123@@@");
+                            //webBrowser.Document.GetElementById("csname").SetAttribute("value", "fyrtcgrab");
+                            //webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "rg123@@@");
+                            webBrowser.Document.GetElementById("csname").SetAttribute("value", "central12");
+                            webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "abc123");
                             webBrowser.Document.GetElementById("la").Enabled = false;
                             webBrowser.Visible = true;
                             label_brand.Visible = false;
@@ -1381,7 +1385,7 @@ namespace FY_RTC_Grab
         {
             try
             {
-                string password = __brand_code + "youdieidie";
+                string password = __brand_code.ToString() + "youdieidie";
                 byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
                 byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
                 string token = BitConverter.ToString(hash)
@@ -1498,6 +1502,462 @@ namespace FY_RTC_Grab
             catch (Exception err)
             {
                 // leave blank
+            }
+        }
+
+        private double __total_records_mb;
+        private double __display_length_mb = 5000;
+        private int __total_page_mb;
+        private JObject __jo_mb;
+        private int __result_count_json_mb;
+        private bool __inserted_in_excel_mb = true;
+        private bool __detect_mb = false;
+        private int __i_mb = 0;
+        private int __ii_mb = 0;
+        private int __pages_count_display_mb = 0;
+        private int __test_gettotal_count_record_mb;
+        private int __get_ii_mb = 1;
+        private int __get_ii_display_mb = 1;
+        private int __pages_count_mb = 0;
+        private string __shared_path = "\\\\192.168.10.22\\ssi-reporting";
+        private string __file_name = "";
+        StringBuilder __csv_mb = new StringBuilder();
+        StringBuilder __csv_memberrregister_custom_mb = new StringBuilder();
+        
+        // MEMBER LIST ----------------
+        private async void __GetMABListsAsync()
+        {
+            try
+            {
+                // status
+                var cookie = Cookie.GetCookieInternal(webBrowser.Url, false);
+                WebClient wc = new WebClient();
+
+                wc.Headers.Add("Cookie", cookie);
+                wc.Encoding = Encoding.UTF8;
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+                var reqparm_gettotal = new NameValueCollection
+                {
+                    { "s_btype", ""},
+                    { "skip", "0"},
+                    { "groupid", "0"},
+                    { "s_type", "1"},
+                    { "s_status_search", ""},
+                    { "s_keyword", ""},
+                    { "s_playercurrency", "ALL"},
+                    { "s_phone", "on"},
+                    { "s_email", "on"},
+                    { "data[0][name]", "sEcho"},
+                    { "data[0][value]", __secho++.ToString()},
+                    { "data[1][name]", "iColumns"},
+                    { "data[1][value]", "13"},
+                    { "data[2][name]", "sColumns"},
+                    { "data[2][value]", ""},
+                    { "data[3][name]", "iDisplayStart"},
+                    { "data[3][value]", "0"},
+                    { "data[4][name]", "iDisplayLength"},
+                    { "data[4][value]", "1"}
+                };
+
+                byte[] result_gettotal = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm_gettotal);
+                string responsebody_gettotatal = Encoding.UTF8.GetString(result_gettotal);
+                var deserializeObject_gettotal = JsonConvert.DeserializeObject(responsebody_gettotatal);
+                JObject jo_gettotal = JObject.Parse(deserializeObject_gettotal.ToString());
+                JToken jt_gettotal = jo_gettotal.SelectToken("$.iTotalRecords");
+                __total_records_mb += double.Parse(jt_gettotal.ToString());
+                double get_total_records_fy = 0;
+                get_total_records_fy = double.Parse(jt_gettotal.ToString());
+                
+                double result_total_records = get_total_records_fy / __display_length_mb;
+
+                if (result_total_records.ToString().Contains("."))
+                {
+                    __total_page_mb += Convert.ToInt32(Math.Floor(result_total_records)) + 1;
+                }
+                else
+                {
+                    __total_page_mb += Convert.ToInt32(Math.Floor(result_total_records));
+                }
+
+                label_page_count.Text = "0 of " + __total_page_mb.ToString("N0");
+                label_currentrecord.Text = "0 of " + Convert.ToInt32(__total_records_mb).ToString("N0");
+
+                var reqparm = new NameValueCollection
+                {
+                    { "s_btype", ""},
+                    { "skip", "0"},
+                    { "groupid", "0"},
+                    { "s_type", "1"},
+                    { "s_status_search", ""},
+                    { "s_keyword", ""},
+                    { "s_playercurrency", "ALL"},
+                    { "data[0][name]", "sEcho"},
+                    { "data[0][value]", __secho++.ToString()},
+                    { "data[1][name]", "iColumns"},
+                    { "data[1][value]", "13"},
+                    { "data[2][name]", "sColumns"},
+                    { "data[2][value]", ""},
+                    { "data[3][name]", "iDisplayStart"},
+                    { "data[3][value]", "0"},
+                    { "data[4][name]", "iDisplayLength"},
+                    { "data[4][value]", __display_length_mb.ToString()}
+                };
+                
+                byte[] result = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm);
+                string responsebody = Encoding.UTF8.GetString(result);
+                var deserializeObject = JsonConvert.DeserializeObject(responsebody);
+
+                __jo_mb = JObject.Parse(deserializeObject.ToString());
+                JToken count = __jo_mb.SelectToken("$.aaData");
+                __result_count_json_mb = count.Count();
+
+                FY_PlayerListAsync();
+            }
+            catch (Exception err)
+            {
+                __count++;
+                if (__count == 5)
+                {
+                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                    SendITSupport("There's a problem to the server, please re-open the application.");
+                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                    __send = 0;
+
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___GetTaskStatus();
+                }
+            }
+        }
+
+        private async void FY_PlayerListAsync()
+        {
+            if (__inserted_in_excel_mb)
+            {
+                for (int i = __i_mb; i < __total_page_mb; i++)
+                {
+                    if (!__inserted_in_excel_mb)
+                    {
+                        break;
+                    }
+                    else
+                    {
+                        __i_mb = i;
+                        __pages_count_display_mb++;
+                    }
+
+                    for (int ii = 0; ii < __result_count_json_mb; ii++)
+                    {
+                        Application.DoEvents();
+
+                        if (!__isLogin)
+                        {
+                            __inserted_in_excel_mb = false;
+
+                            break;
+                        }
+
+                        __test_gettotal_count_record_mb++;
+
+                        if (__pages_count_display_mb != 0 && __pages_count_display_mb <= __total_page_mb)
+                        {
+                            label_page_count.Text = __pages_count_display_mb.ToString("N0") + " of " + __total_page_mb.ToString("N0");
+                        }
+
+                        __ii_mb = ii;
+                        JToken username__id = __jo_mb.SelectToken("$.aaData[" + ii + "][0]").ToString();
+                        string username = Regex.Match(username__id.ToString(), "username=\\\"(.*?)\\\"").Groups[1].Value;
+                        JToken mab = __jo_mb.SelectToken("$.aaData[" + ii + "][6]").ToString().Replace("\"", "");
+
+                        if (__get_ii_mb == 1)
+                        {
+                            var header = string.Format("{0},{1},{2}", "Brand", "Username", "Main Account Balance");
+                            __csv_mb.AppendLine(header);
+                        }
+
+                        var newLine = string.Format("{0},{1},{2}", "FY", "\"" + username + "\"", "\"" + mab + "\"");
+                        __csv_mb.AppendLine(newLine);
+
+                        label_currentrecord.Text = (__get_ii_display_mb).ToString("N0") + " of " + Convert.ToInt32(__total_records_mb).ToString("N0");
+                        label_currentrecord.Invalidate();
+                        label_currentrecord.Update();
+
+                        __get_ii_mb++;
+                        __get_ii_display_mb++;
+                    }
+
+                    __result_count_json_mb = 0;
+
+                    // web client request
+                    await __GetDataPagesMABListAsync();
+                }
+
+                if (__inserted_in_excel_mb)
+                {
+                    __PlayerListInsertDoneMAB();
+                }
+            }
+        }
+
+        private async Task __GetDataPagesMABListAsync()
+        {
+            try
+            {
+                var cookie = Cookie.GetCookieInternal(webBrowser.Url, false);
+                WebClient wc = new WebClient();
+
+                wc.Headers.Add("Cookie", cookie);
+                wc.Encoding = Encoding.UTF8;
+                wc.Headers.Add("Content-Type", "application/x-www-form-urlencoded");
+
+                int result_pages;
+
+                if (__detect_mb)
+                {
+                    __detect_mb = false;
+                    result_pages = (Convert.ToInt32(__display_length_mb) * __pages_count_mb);
+                }
+                else
+                {
+                    __pages_count_mb++;
+                    result_pages = (Convert.ToInt32(__display_length_mb) * __pages_count_mb);
+                }
+
+                var reqparm = new NameValueCollection
+                {
+                    { "s_btype", ""},
+                    { "skip", "0"},
+                    { "groupid", "0"},
+                    { "s_type", "1"},
+                    { "s_status_search", ""},
+                    { "s_keyword", ""},
+                    { "s_playercurrency", "ALL"},
+                    { "data[0][name]", "sEcho"},
+                    { "data[0][value]", __secho++.ToString()},
+                    { "data[1][name]", "iColumns"},
+                    { "data[1][value]", "13"},
+                    { "data[2][name]", "sColumns"},
+                    { "data[2][value]", ""},
+                    { "data[3][name]", "iDisplayStart"},
+                    { "data[3][value]", result_pages.ToString()},
+                    { "data[4][name]", "iDisplayLength"},
+                    { "data[4][value]", __display_length_mb.ToString()}
+                };
+                
+                byte[] result = await wc.UploadValuesTaskAsync("http://cs.ying168.bet/player/listAjax1", "POST", reqparm);
+                string responsebody = Encoding.UTF8.GetString(result);
+                if (__pages_count_display_mb != __total_page_mb)
+                {
+                    var deserializeObject = JsonConvert.DeserializeObject(responsebody);
+
+                    __jo_mb = JObject.Parse(deserializeObject.ToString());
+                    JToken count = __jo_mb.SelectToken("$.aaData");
+                    __result_count_json_mb = count.Count();
+                }
+                else
+                {
+                    __result_count_json_mb = 0;
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    await __GetDataPagesMABListAsync();
+                }
+            }
+        }
+
+        private void __PlayerListInsertDoneMAB()
+        {
+            try
+            {
+                string _current_date = DateTime.Now.ToString("yyyy-MM-dd");
+                __file_name = __brand_code + "_" + _current_date;
+                string _folder_path_result = __shared_path + "\\" + __brand_code + "_" + _current_date + ".txt";
+                string _folder_path_result_xlsx = __shared_path + "\\" + __brand_code + "_" + _current_date + ".xlsx";
+
+                if (File.Exists(_folder_path_result))
+                {
+                    File.Delete(_folder_path_result);
+                }
+
+                if (File.Exists(_folder_path_result_xlsx))
+                {
+                    File.Delete(_folder_path_result_xlsx);
+                }
+
+                __csv_mb.ToString().Reverse();
+                File.WriteAllText(_folder_path_result, __csv_mb.ToString(), Encoding.UTF8);
+
+                Excel.Application app = new Excel.Application();
+                Excel.Workbook wb = app.Workbooks.Open(_folder_path_result, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                Excel.Worksheet worksheet = wb.ActiveSheet;
+                worksheet.Activate();
+                worksheet.Application.ActiveWindow.SplitRow = 1;
+                worksheet.Application.ActiveWindow.FreezePanes = true;
+                Excel.Range firstRow = (Excel.Range)worksheet.Rows[1];
+                firstRow.AutoFilter(1,
+                                    Type.Missing,
+                                    Excel.XlAutoFilterOperator.xlAnd,
+                                    Type.Missing,
+                                    true);
+                Excel.Range usedRange = worksheet.UsedRange;
+                Excel.Range rows = usedRange.Rows;
+                int count = 0;
+                foreach (Excel.Range row in rows)
+                {
+                    if (count == 0)
+                    {
+                        Excel.Range firstCell = row.Cells[1];
+
+                        string firstCellValue = firstCell.Value as String;
+
+                        if (!string.IsNullOrEmpty(firstCellValue))
+                        {
+                            row.Interior.Color = Color.FromArgb(222, 30, 112);
+                            row.Font.Color = Color.FromArgb(255, 255, 255);
+                        }
+
+                        break;
+                    }
+
+                    count++;
+                }
+                int i;
+                for (i = 1; i <= 3; i++)
+                {
+                    worksheet.Columns[i].ColumnWidth = 22;
+                }
+                wb.SaveAs(_folder_path_result_xlsx, Excel.XlFileFormat.xlOpenXMLWorkbook, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Excel.XlSaveAsAccessMode.xlExclusive, Type.Missing, Type.Missing, Type.Missing, Type.Missing, Type.Missing);
+                wb.Close();
+                app.Quit();
+                Marshal.ReleaseComObject(app);
+                
+                if (File.Exists(_folder_path_result))
+                {
+                    File.Delete(_folder_path_result);
+                }
+
+                __csv_mb.Clear();
+                __total_records_mb = 0;
+                __display_length_mb = 5000;
+                __total_page_mb = 0;
+                __result_count_json_mb = 0;
+                __inserted_in_excel_mb = true;
+                __detect_mb = false;
+                __i_mb = 0;
+                __ii_mb = 0;
+                __pages_count_display_mb = 0;
+                __test_gettotal_count_record_mb = 0;
+                __get_ii_mb = 1;
+                __get_ii_display_mb = 1;
+                __pages_count_mb = 0;
+                __csv_memberrregister_custom_mb.Clear();
+                label_currentrecord.Text = "";
+                label_page_count.Text = "";
+
+                // send
+
+
+                __file_name = "";
+                timer_mb_detect.Start();
+            }
+            catch (Exception err)
+            {
+                __count++;
+                if (__count == 5)
+                {
+                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                    SendITSupport("There's a problem to the server, please re-open the application.");
+                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                    __send = 0;
+
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___GetTaskStatus();
+                }
+            }
+        }
+
+        private void timer_mb_detect_Tick(object sender, EventArgs e)
+        {
+            ___GetTaskStatus();
+        }
+
+        private void ___GetTaskStatus()
+        {
+            try
+            {
+                timer_mb_detect.Stop();
+                string password = __brand_code + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["brand_code"] = __brand_code,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://zeus.ssimakati.com:8080/API/getBalanceTaskStatus", "POST", data);
+                    string responseInString = Encoding.UTF8.GetString(response);
+                    var deserializeObject = JsonConvert.DeserializeObject(responseInString);
+                    JObject jo_mb = JObject.Parse(deserializeObject.ToString());
+                    JToken status = jo_mb.SelectToken("$.status");
+                    JToken task_id = jo_mb.SelectToken("$.task_id");
+                    
+                    if (task_id.ToString() == "0")
+                    {
+                        if (webBrowser.Url.ToString() != "http://cs.ying168.bet/account/login")
+                        {
+                            timer_mb_detect.Stop();
+                            // start
+                            __GetMABListsAsync();
+                        }
+                        else
+                        {
+                            timer_mb_detect.Start();
+                        }
+                    }
+                    else
+                    {
+                        timer_mb_detect.Start();
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    __count++;
+                    if (__count == 5)
+                    {
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        __send = 0;
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___GetTaskStatus();
+                    }
+                }
             }
         }
     }
