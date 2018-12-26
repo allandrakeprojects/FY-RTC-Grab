@@ -261,6 +261,7 @@
             this.pictureBox_header.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.pictureBox_header.TabIndex = 3;
             this.pictureBox_header.TabStop = false;
+            this.pictureBox_header.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_header_MouseDown);
             // 
             // Main_Form
             // 
