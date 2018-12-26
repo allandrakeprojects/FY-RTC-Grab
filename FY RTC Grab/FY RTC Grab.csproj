@@ -116,5 +116,8 @@
   <ItemGroup>
     <Folder Include="Excel\" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\rtc_loader_01.gif" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
