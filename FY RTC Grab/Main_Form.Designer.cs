@@ -31,10 +31,11 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main_Form));
             this.panel_header = new System.Windows.Forms.Panel();
+            this.pictureBox_header = new System.Windows.Forms.PictureBox();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.label_title = new System.Windows.Forms.Label();
             this.pictureBox_minimize = new System.Windows.Forms.PictureBox();
             this.pictureBox_close = new System.Windows.Forms.PictureBox();
+            this.label_title = new System.Windows.Forms.Label();
             this.label_brand = new System.Windows.Forms.Label();
             this.panel2 = new System.Windows.Forms.Panel();
             this.label_player_last_registered = new System.Windows.Forms.Label();
@@ -49,14 +50,13 @@
             this.label_currentrecord = new System.Windows.Forms.Label();
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.pictureBox_loader = new System.Windows.Forms.PictureBox();
-            this.pictureBox_header = new System.Windows.Forms.PictureBox();
             this.panel_header.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_header)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_minimize)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_close)).BeginInit();
             this.panel_landing.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_landing)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_loader)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_header)).BeginInit();
             this.SuspendLayout();
             // 
             // panel_header
@@ -64,15 +64,26 @@
             this.panel_header.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(16)))), ((int)(((byte)(90)))), ((int)(((byte)(101)))));
             this.panel_header.Controls.Add(this.pictureBox_header);
             this.panel_header.Controls.Add(this.panel1);
-            this.panel_header.Controls.Add(this.label_title);
             this.panel_header.Controls.Add(this.pictureBox_minimize);
             this.panel_header.Controls.Add(this.pictureBox_close);
+            this.panel_header.Controls.Add(this.label_title);
             this.panel_header.Dock = System.Windows.Forms.DockStyle.Top;
             this.panel_header.Location = new System.Drawing.Point(0, 0);
             this.panel_header.Name = "panel_header";
             this.panel_header.Size = new System.Drawing.Size(466, 45);
             this.panel_header.TabIndex = 1;
             this.panel_header.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel_header_MouseDown);
+            // 
+            // pictureBox_header
+            // 
+            this.pictureBox_header.Image = global::FY_RTC_Grab.Properties.Resources.rtc_header;
+            this.pictureBox_header.Location = new System.Drawing.Point(14, 10);
+            this.pictureBox_header.Name = "pictureBox_header";
+            this.pictureBox_header.Size = new System.Drawing.Size(27, 24);
+            this.pictureBox_header.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.pictureBox_header.TabIndex = 3;
+            this.pictureBox_header.TabStop = false;
+            this.pictureBox_header.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_header_MouseDown);
             // 
             // panel1
             // 
@@ -83,18 +94,6 @@
             this.panel1.TabIndex = 1;
             this.panel1.TabStop = true;
             this.panel1.MouseDown += new System.Windows.Forms.MouseEventHandler(this.panel1_MouseDown);
-            // 
-            // label_title
-            // 
-            this.label_title.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label_title.ForeColor = System.Drawing.Color.WhiteSmoke;
-            this.label_title.Location = new System.Drawing.Point(1, 0);
-            this.label_title.Name = "label_title";
-            this.label_title.Size = new System.Drawing.Size(123, 45);
-            this.label_title.TabIndex = 2;
-            this.label_title.Text = "RTC Grab";
-            this.label_title.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.label_title.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label_title_MouseDown);
             // 
             // pictureBox_minimize
             // 
@@ -121,6 +120,18 @@
             this.pictureBox_close.TabIndex = 0;
             this.pictureBox_close.TabStop = false;
             this.pictureBox_close.Click += new System.EventHandler(this.pictureBox_close_Click);
+            // 
+            // label_title
+            // 
+            this.label_title.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label_title.ForeColor = System.Drawing.Color.WhiteSmoke;
+            this.label_title.Location = new System.Drawing.Point(39, 0);
+            this.label_title.Name = "label_title";
+            this.label_title.Size = new System.Drawing.Size(122, 45);
+            this.label_title.TabIndex = 2;
+            this.label_title.Text = "RTC Grab";
+            this.label_title.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
+            this.label_title.MouseDown += new System.Windows.Forms.MouseEventHandler(this.label_title_MouseDown);
             // 
             // label_brand
             // 
@@ -252,17 +263,6 @@
             this.pictureBox_loader.Visible = false;
             this.pictureBox_loader.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_loader_MouseDown);
             // 
-            // pictureBox_header
-            // 
-            this.pictureBox_header.Image = global::FY_RTC_Grab.Properties.Resources.rtc_fy;
-            this.pictureBox_header.Location = new System.Drawing.Point(120, 10);
-            this.pictureBox_header.Name = "pictureBox_header";
-            this.pictureBox_header.Size = new System.Drawing.Size(27, 24);
-            this.pictureBox_header.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.pictureBox_header.TabIndex = 3;
-            this.pictureBox_header.TabStop = false;
-            this.pictureBox_header.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_header_MouseDown);
-            // 
             // Main_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -290,12 +290,12 @@
             this.Load += new System.EventHandler(this.Main_Form_Load);
             this.panel_header.ResumeLayout(false);
             this.panel_header.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_header)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_minimize)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_close)).EndInit();
             this.panel_landing.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_landing)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_loader)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox_header)).EndInit();
             this.ResumeLayout(false);
 
         }
