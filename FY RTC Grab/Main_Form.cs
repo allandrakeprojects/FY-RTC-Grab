@@ -600,6 +600,39 @@ namespace FY_RTC_Grab
                                 //{
                                 //    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
                                 //}
+                                // update 01/11/2018
+                                try
+                                {
+                                    if (!__isSending)
+                                    {
+                                        if (File.Exists(Path.GetTempPath() + @"\rtcgrab_temp_sending_fy.txt"))
+                                        {
+                                            File.Delete(Path.GetTempPath() + @"\rtcgrab_temp_sending_fy.txt");
+                                        }
+                                        Properties.Settings.Default.______count_player = Properties.Settings.Default.______count_player++;
+                                        Properties.Settings.Default.Save();
+                                        using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_sending_fy.txt", true, Encoding.UTF8))
+                                        {
+                                            file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
+                                        }
+                                        ___Send();
+                                    }
+                                    else
+                                    {
+                                        Properties.Settings.Default.______count_player = Properties.Settings.Default.______count_player++;
+                                        Properties.Settings.Default.Save();
+                                        using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_temp_sending_fy.txt", true, Encoding.UTF8))
+                                        {
+                                            file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
+                                        }
+                                    }
+                                }
+                                catch (Exception err)
+                                {
+                                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                                }
+
                                 using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
                                 {
                                     file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
@@ -1537,6 +1570,7 @@ namespace FY_RTC_Grab
         private int __result_count_json_mb;
         private bool __inserted_in_excel_mb = true;
         private bool __detect_mb = false;
+        private bool __isSending = false;
         private int __i_mb = 0;
         private int __ii_mb = 0;
         private int __pages_count_display_mb = 0;
@@ -1549,7 +1583,7 @@ namespace FY_RTC_Grab
         private string __task_id = "";
         StringBuilder __csv_mb = new StringBuilder();
         StringBuilder __csv_memberrregister_custom_mb = new StringBuilder();
-        
+
         private async void __GetMABListsAsync()
         {
             try
@@ -2251,6 +2285,55 @@ namespace FY_RTC_Grab
                     }
                 }
             }
+        }
+                
+        private void ___Send()
+        {
+            try
+            {
+                string path = Path.GetTempPath() + @"\rtcgrab_sending_fy.txt";
+                string path_temp = Path.GetTempPath() + @"\rtcgrab_temp_sending_fy.txt";
+                if (Properties.Settings.Default.______count_player == 5)
+                {
+                    __isSending = true;
+                    
+                    Properties.Settings.Default.______count_player = 0;
+                    Properties.Settings.Default.Save();
+                    string line;
+                    char[] split = "*|*".ToCharArray();
+                    StreamReader file = new StreamReader(path, Encoding.UTF8);
+                    while ((line = file.ReadLine()) != null)
+                    {
+                        if (line.Trim() != "")
+                        {
+                            string[] data = line.Split(split);
+                            ___InsertData(data[0], data[3], data[6], data[9], data[12], data[15], data[18], data[21], data[24]);
+                            __count = 0;
+                        }
+                    }
+                    
+                    File.WriteAllText(path, string.Empty);
+                    
+                    if (File.Exists(path_temp))
+                    {
+                        File.Copy(path_temp, path);
+                    }
+
+                    __isSending = false;
+                }
+            }
+            catch (Exception err)
+            {
+                string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+            }
+        }
+
+        private void panel1_MouseDoubleClick(object sender, MouseEventArgs e)
+        {
+            Properties.Settings.Default.______last_registered_player = "";
+            Properties.Settings.Default.______last_registered_player_deposit = "";
+            Properties.Settings.Default.Save();
         }
     }
 }
