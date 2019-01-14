@@ -9,7 +9,6 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Mail;
 using System.Runtime.InteropServices;
 using System.Security.Cryptography;
 using System.Text;
@@ -44,6 +43,7 @@ namespace FY_RTC_Grab
         private string __end_time;
         private string __brand_code = "FY";
         private string __brand_color = "#DE1E70";
+        private string __app = "RTC Grab";
         private int __count = 0;
         Form __mainFormHandler;
 
@@ -327,7 +327,7 @@ namespace FY_RTC_Grab
                                 
                                 string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                                 SendITSupport("The application have been logout, please re-login again.");
-                                SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>The application have been logout, please re-login again.</b></body></html>");
+                                SendMyBot("The application have been logout, please re-login again.");
                                 __send = 0;
                             }
                             
@@ -378,7 +378,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -630,16 +630,10 @@ namespace FY_RTC_Grab
                                 catch (Exception err)
                                 {
                                     string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
-                                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                                    SendMyBot(err.ToString());
                                 }
-
-                                using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
-                                {
-                                    file.WriteLine(_username + "*|*" + _name + "*|*" + _date_register + "*|*" + _date_deposit + "*|*" + _cn + "*|*" + _email + "*|*" + _agent + "*|*" + _qq + "*|*" + __brand_code);
-                                }
-
-                                Thread t = new Thread(delegate () { ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code); });
-                                t.Start();
+                                
+                                ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code);
 
                                 __count = 0;
 
@@ -710,6 +704,11 @@ namespace FY_RTC_Grab
 
                     var response = wb.UploadValues("http://zeus.ssimakati.com:8080/API/sendRTC", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
+                    
+                    using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
+                    {
+                        file.WriteLine(username + "*|*" + name + "*|*" + date_register + "*|*" + date_deposit + "*|*" + contact + "*|*" + email + "*|*" + agent + "*|*" + qq + "*|*" + __brand_code + " ----- " + responseInString);
+                    }
                 }
             }
             catch (Exception err)
@@ -721,7 +720,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -765,6 +764,11 @@ namespace FY_RTC_Grab
 
                     var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/sendRTC", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
+
+                    using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
+                    {
+                        file.WriteLine(username + "*|*" + name + "*|*" + date_register + "*|*" + date_deposit + "*|*" + contact + "*|*" + email + "*|*" + agent + "*|*" + qq + "*|*" + __brand_code + " ----- " + responseInString);
+                    }
                 }
             }
             catch (Exception err)
@@ -776,7 +780,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -1241,7 +1245,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -1288,7 +1292,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -1351,50 +1355,35 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
-        private void SendEmail(string get_message)
+
+        private void SendMyBot(string message)
         {
             try
             {
-                int port = 587;
-                string host = "smtp.gmail.com";
-                string username = "drake@18tech.com";
-                string password = "@ccess123418tech";
-                string mailFrom = "noreply@mail.com";
-                string mailTo = "drake@18tech.com";
-                string mailTitle = "FY RTC Grab";
-                string mailMessage = get_message;
-
-                using (SmtpClient client = new SmtpClient())
+                string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                string urlString = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text={2}";
+                string apiToken = "772918363:AAHn2ufmP3ocLEilQ1V-IHcqYMcSuFJHx5g";
+                string chatId = "@allandrake";
+                string text = "Brand:%20-----" + __brand_code + " " + __app + "-----%0AIP:%20192.168.10.252%0ALocation:%20Robinsons%20Summit%20Office%0ADate%20and%20Time:%20[" + datetime + "]%0AMessage:%20" + message + "";
+                urlString = String.Format(urlString, apiToken, chatId, text);
+                WebRequest request = WebRequest.Create(urlString);
+                Stream rs = request.GetResponse().GetResponseStream();
+                StreamReader reader = new StreamReader(rs);
+                string line = "";
+                StringBuilder sb = new StringBuilder();
+                while (line != null)
                 {
-                    MailAddress from = new MailAddress(mailFrom);
-                    MailMessage message = new MailMessage
-                    {
-                        From = from
-                    };
-                    message.To.Add(mailTo);
-                    message.Subject = mailTitle;
-                    message.Body = mailMessage;
-                    message.IsBodyHtml = true;
-                    client.DeliveryMethod = SmtpDeliveryMethod.Network;
-                    client.UseDefaultCredentials = false;
-                    client.Host = host;
-                    client.Port = port;
-                    client.EnableSsl = true;
-                    client.Credentials = new NetworkCredential
-                    {
-                        UserName = username,
-                        Password = password
-                    };
-                    client.Send(message);
+                    line = reader.ReadLine();
+                    if (line != null)
+                        sb.Append(line);
                 }
             }
             catch (Exception err)
             {
                 __send++;
-                if (__send <= 5)
+                if (__send == 5)
                 {
-                    SendEmail(get_message);
+                    SendMyBot(message);
                 }
                 else
                 {
@@ -1402,7 +1391,7 @@ namespace FY_RTC_Grab
                 }
             }
         }
-        
+
         private void SendITSupport(string message)
         {
             try
@@ -1478,7 +1467,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -1531,7 +1520,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -1680,7 +1669,7 @@ namespace FY_RTC_Grab
                 {
                     string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                     SendITSupport("There's a problem to the server, please re-open the application.");
-                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                    SendMyBot(err.ToString());
                     __send = 0;
 
                     __isClose = false;
@@ -1930,7 +1919,7 @@ namespace FY_RTC_Grab
                 {
                     string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                     SendITSupport("There's a problem to the server, please re-open the application.");
-                    SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                    SendMyBot(err.ToString());
                     __send = 0;
 
                     __isClose = false;
@@ -2005,7 +1994,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2076,7 +2065,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2128,7 +2117,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2179,7 +2168,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2226,7 +2215,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2273,7 +2262,7 @@ namespace FY_RTC_Grab
                     {
                         string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                        SendMyBot(err.ToString());
                         __send = 0;
 
                         __isClose = false;
@@ -2325,7 +2314,7 @@ namespace FY_RTC_Grab
             catch (Exception err)
             {
                 string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
-                SendEmail("<html><body>Brand: <font color='" + __brand_color + "'>-----" + __brand_code + "-----</font><br/>IP: 192.168.10.252<br/>Location: Robinsons Summit Office<br/>Date and Time: [" + datetime + "]<br/>Line Number: " + LineNumber() + "<br/>Message: <b>" + err.ToString() + "</b></body></html>");
+                SendMyBot(err.ToString());
             }
         }
 
