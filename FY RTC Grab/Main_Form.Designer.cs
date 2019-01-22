@@ -50,6 +50,7 @@
             this.label_currentrecord = new System.Windows.Forms.Label();
             this.webBrowser = new System.Windows.Forms.WebBrowser();
             this.pictureBox_loader = new System.Windows.Forms.PictureBox();
+            this.timer_detect_running = new System.Windows.Forms.Timer(this.components);
             this.panel_header.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_header)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox_minimize)).BeginInit();
@@ -264,6 +265,12 @@
             this.pictureBox_loader.Visible = false;
             this.pictureBox_loader.MouseDown += new System.Windows.Forms.MouseEventHandler(this.pictureBox_loader_MouseDown);
             // 
+            // timer_detect_running
+            // 
+            this.timer_detect_running.Enabled = true;
+            this.timer_detect_running.Interval = 60000;
+            this.timer_detect_running.Tick += new System.EventHandler(this.timer_detect_running_Tick);
+            // 
             // Main_Form
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -323,5 +330,6 @@
         private System.Windows.Forms.Label label_page_count;
         private System.Windows.Forms.Label label_currentrecord;
         private System.Windows.Forms.PictureBox pictureBox_header;
+        private System.Windows.Forms.Timer timer_detect_running;
     }
 }

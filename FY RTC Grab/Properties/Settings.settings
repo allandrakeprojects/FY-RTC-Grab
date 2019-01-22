@@ -14,5 +14,11 @@
     <Setting Name="______count_player" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">0</Value>
     </Setting>
+    <Setting Name="______server_ip" Type="System.String" Scope="User">
+      <Value Profile="(Default)">192.168.10.252</Value>
+    </Setting>
+    <Setting Name="______server_location" Type="System.String" Scope="User">
+      <Value Profile="(Default)">Robinsons Summit</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

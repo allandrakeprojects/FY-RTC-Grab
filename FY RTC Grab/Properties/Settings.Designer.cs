@@ -70,5 +70,29 @@ namespace FY_RTC_Grab.Properties {
                 this["______count_player"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("192.168.10.252")]
+        public string ______server_ip {
+            get {
+                return ((string)(this["______server_ip"]));
+            }
+            set {
+                this["______server_ip"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Robinsons Summit")]
+        public string ______server_location {
+            get {
+                return ((string)(this["______server_location"]));
+            }
+            set {
+                this["______server_location"] = value;
+            }
+        }
     }
 }
