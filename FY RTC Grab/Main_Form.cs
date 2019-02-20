@@ -1833,10 +1833,11 @@ namespace FY_RTC_Grab
         {
             try
             {
+                string _path = "\\\\192.168.10.252\\Balance$\\";
                 string _current_datetime = DateTime.Now.ToString("yyyy-MM-ddHHmm");
                 __file_name = __brand_code + "_" + _current_datetime;
-                string _folder_path_result = "C:\\Projects\\zeus\\uploads\\Balance\\" + __brand_code + "_" + _current_datetime + ".txt";
-                string _folder_path_result_xlsx = "C:\\Projects\\zeus\\uploads\\Balance\\" + __brand_code + "_" + _current_datetime + ".xlsx";
+                string _folder_path_result = _path + __brand_code + "_" + _current_datetime + ".txt";
+                string _folder_path_result_xlsx = _path + __brand_code + "_" + _current_datetime + ".xlsx";
 
                 if (File.Exists(_folder_path_result))
                 {
