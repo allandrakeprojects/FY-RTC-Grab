@@ -1144,6 +1144,23 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        if (__detectInsert_deposit)
+                        {
+                            if (!isInsert)
+                            {
+                                if (__player_ldd_deposit != "-")
+                                {
+                                    player_info.Add(username + "*|*" + __player_ldd_deposit);
+
+                                    using (StreamWriter file = new StreamWriter(path, true, Encoding.UTF8))
+                                    {
+                                        file.WriteLine(username);
+                                        file.Close();
+                                    }
+                                }
+                            }
+                        }
+
                         if (player_info.Count != 0)
                         {
                             player_info.Reverse();
@@ -1498,6 +1515,9 @@ namespace FY_RTC_Grab
                         Environment.Exit(0);
                     }
                     else
+                    {
+
+                    }
                     {
                         ___WaitNSeconds(10);
                         ___GetLastRegisteredPlayer2();
