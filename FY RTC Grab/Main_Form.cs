@@ -45,7 +45,7 @@ namespace FY_RTC_Grab
         private string __brand_color = "#DE1E70";
         private string __app = "RTC Grab";
         private string __app_type = "0";
-        private int __count = 0;
+        private int __send = 0;
         Form __mainFormHandler;
 
         // Deposit
@@ -55,11 +55,9 @@ namespace FY_RTC_Grab
         private int __secho_deposit;
         private int __total_page_deposit;
         private int __result_count_json_deposit;
-        private int __count_deposit = 0;
         private string __player_ldd_deposit;
         private string __player_id_deposit;
         private bool __detectInsert_deposit = false;
-        private int __send = 0;
 
         // Drag Header to Move
         [DllImport("user32.dll")]
@@ -326,7 +324,6 @@ namespace FY_RTC_Grab
                                 __mainFormHandler = Application.OpenForms[0];
                                 __mainFormHandler.Size = new Size(466, 468);
                                 
-                                string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                                 SendITSupport("The application have been logout, please re-login again.");
                                 SendMyBot("The application have been logout, please re-login again.");
                                 __send = 0;
@@ -339,8 +336,6 @@ namespace FY_RTC_Grab
                             webBrowser.Document.Window.ScrollTo(0, webBrowser.Document.Body.ScrollRectangle.Height);
                             webBrowser.Document.GetElementById("csname").SetAttribute("value", "fyrtcgrab");
                             webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "rg123@@@");
-                            //webBrowser.Document.GetElementById("csname").SetAttribute("value", "central12");
-                            //webBrowser.Document.GetElementById("cspwd").SetAttribute("value", "abc123");
                             webBrowser.Document.GetElementById("la").Enabled = false;
                             webBrowser.Visible = true;
                             label_brand.Visible = false;
@@ -377,7 +372,6 @@ namespace FY_RTC_Grab
                     }
                     catch (Exception err)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -630,13 +624,12 @@ namespace FY_RTC_Grab
                                 }
                                 catch (Exception err)
                                 {
-                                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                                     SendMyBot(err.ToString());
                                 }
                                 
                                 ___InsertData(_username, _name, _date_register, _date_deposit, _cn, _email, _agent, _qq, __brand_code);
 
-                                __count = 0;
+                                __send = 0;
 
                                 __playerlist_cn = "";
                                 __playerlist_ea = "";
@@ -703,7 +696,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTC", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/sendRTC", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                     
                     using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
@@ -716,10 +709,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -729,6 +721,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ____InsertData2(username, name, date_register, date_deposit, contact, email, agent, qq, brand_code);
                     }
                 }
@@ -763,7 +756,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/sendRTC", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTC", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
 
                     using (StreamWriter file = new StreamWriter(Path.GetTempPath() + @"\rtcgrab_fy.txt", true, Encoding.UTF8))
@@ -776,10 +769,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -789,6 +781,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___InsertData(username, name, date_register, date_deposit, contact, email, agent, qq, brand_code);
                     }
                 }
@@ -931,12 +924,32 @@ namespace FY_RTC_Grab
 
         private void ___PlayerLastRegistered()
         {
-            if (Properties.Settings.Default.______last_registered_player == "" && Properties.Settings.Default.______last_registered_player_deposit == "")
+            try
             {
-                ___GetLastRegisteredPlayer();
-            }
+                if (Properties.Settings.Default.______last_registered_player == "" && Properties.Settings.Default.______last_registered_player_deposit == "")
+                {
+                    ___GetLastRegisteredPlayer();
+                }
 
-            label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+                label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
+            }
+            catch (Exception err)
+            {
+                __send++;
+                if (__send == 5)
+                {
+                    SendMyBot(err.ToString());
+                    SendITSupport("There's a problem to the server, please re-open the application.");
+
+                    __isClose = false;
+                    Environment.Exit(0);
+                }
+                else
+                {
+                    ___WaitNSeconds(10);
+                    ___PlayerLastRegistered();
+                }
+            }
         }
 
         private void ___SavePlayerLastRegistered(string username)
@@ -1171,7 +1184,7 @@ namespace FY_RTC_Grab
                                 Thread t = new Thread(delegate () { ___InsertData_Deposit(_username, _date_deposit, __brand_code); });
                                 t.Start();
 
-                                __count_deposit = 0;
+                                __send = 0;
                             }
 
                         }
@@ -1234,17 +1247,16 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTCdep", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/sendRTCdep", "POST", data);
                 }
             }
             catch (Exception err)
             {
                 if (__isLogin)
                 {
-                    __count_deposit++;
-                    if (__count_deposit == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -1254,6 +1266,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___InsertData2_Deposit(username, last_deposit_date, brand);
                     }
                 }
@@ -1281,17 +1294,16 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/sendRTCdep", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/sendRTCdep", "POST", data);
                 }
             }
             catch (Exception err)
             {
                 if (__isLogin)
                 {
-                    __count_deposit++;
-                    if (__count_deposit == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -1301,6 +1313,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___InsertData_Deposit(username, last_deposit_date, brand);
                     }
                 }
@@ -1384,13 +1397,15 @@ namespace FY_RTC_Grab
                 __send++;
                 if (__send == 5)
                 {
-                    MessageBox.Show(err.ToString());
+                    SendMyBot(err.ToString());
+                    SendITSupport("There's a problem to the server, please re-open the application.");
 
                     __isClose = false;
                     Environment.Exit(0);
                 }
                 else
                 {
+                    ___WaitNSeconds(10);
                     SendMyBot(message);
                 }
             }
@@ -1425,13 +1440,15 @@ namespace FY_RTC_Grab
                 __send++;
                 if (__send == 5)
                 {
-                    MessageBox.Show(err.ToString());
+                    SendMyBot(err.ToString());
+                    SendITSupport("There's a problem to the server, please re-open the application.");
 
                     __isClose = false;
                     Environment.Exit(0);
                 }
                 else
                 {
+                    ___WaitNSeconds(10);
                     SendITSupport(message);
                 }
             }
@@ -1456,7 +1473,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var result = wb.UploadValues("http://zeus.ssitex.com:8080/API/lastRTCrecord", "POST", data);
+                    var result = wb.UploadValues("http://192.168.10.252:8080/API/lastRTCrecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
@@ -1471,10 +1488,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -1484,6 +1500,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___GetLastRegisteredPlayer2();
                     }
                 }
@@ -1509,7 +1526,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var result = wb.UploadValues("http://zeus2.ssitex.com:8080/API/lastRTCrecord", "POST", data);
+                    var result = wb.UploadValues("http://zeus.ssitex.com:8080/API/lastRTCrecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
@@ -1524,10 +1541,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -1537,6 +1553,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___GetLastRegisteredPlayer();
                     }
                 }
@@ -1673,10 +1690,9 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                __count++;
-                if (__count == 5)
+                __send++;
+                if (__send == 5)
                 {
-                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                     SendITSupport("There's a problem to the server, please re-open the application.");
                     SendMyBot(err.ToString());
                     __send = 0;
@@ -1686,6 +1702,7 @@ namespace FY_RTC_Grab
                 }
                 else
                 {
+                    ___WaitNSeconds(10);
                     ___GetTaskStatus();
                 }
             }
@@ -1924,10 +1941,9 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                __count++;
-                if (__count == 5)
+                __send++;
+                if (__send == 5)
                 {
-                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                     SendITSupport("There's a problem to the server, please re-open the application.");
                     SendMyBot(err.ToString());
                     __send = 0;
@@ -1937,6 +1953,7 @@ namespace FY_RTC_Grab
                 }
                 else
                 {
+                    ___WaitNSeconds(10);
                     ___GetTaskStatus();
                 }
             }
@@ -1948,6 +1965,77 @@ namespace FY_RTC_Grab
         }
 
         private void ___GetTaskStatus()
+        {
+            try
+            {
+                timer_mb_detect.Stop();
+                string password = __brand_code + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["brand_code"] = __brand_code,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/getBalanceTaskStatus", "POST", data);
+                    string responseInString = Encoding.UTF8.GetString(response);
+                    var deserializeObject = JsonConvert.DeserializeObject(responseInString);
+                    JObject jo_mb = JObject.Parse(deserializeObject.ToString());
+                    JToken status = jo_mb.SelectToken("$.status");
+                    JToken task_id = jo_mb.SelectToken("$.task_id");
+                    __task_id = task_id.ToString();
+
+                    if (status.ToString() == "1")
+                    {
+                        if (webBrowser.Url.ToString() != "http://cs.ying168.bet/account/login")
+                        {
+                            // start
+                            timer_mb_detect.Stop();
+                            __UpdateTaskStatus();
+                            __GetMABListsAsync();
+                        }
+                        else
+                        {
+                            timer_mb_detect.Start();
+                        }
+                    }
+                    else
+                    {
+                        timer_mb_detect.Start();
+                    }
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    __send++;
+                    if (__send == 5)
+                    {
+                        SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendMyBot(err.ToString());
+                        __send = 0;
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___WaitNSeconds(10);
+                        ___GetTaskStatus2();
+                    }
+                }
+            }
+        }
+        
+        private void ___GetTaskStatus2()
         {
             try
             {
@@ -1999,10 +2087,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2012,77 +2099,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
-                        ___GetTaskStatus2();
-                    }
-                }
-            }
-        }
-        
-        private void ___GetTaskStatus2()
-        {
-            try
-            {
-                timer_mb_detect.Stop();
-                string password = __brand_code + "youdieidie";
-                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
-                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
-                string token = BitConverter.ToString(hash)
-                   .Replace("-", string.Empty)
-                   .ToLower();
-
-                using (var wb = new WebClient())
-                {
-                    var data = new NameValueCollection
-                    {
-                        ["brand_code"] = __brand_code,
-                        ["token"] = token
-                    };
-
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/getBalanceTaskStatus", "POST", data);
-                    string responseInString = Encoding.UTF8.GetString(response);
-                    var deserializeObject = JsonConvert.DeserializeObject(responseInString);
-                    JObject jo_mb = JObject.Parse(deserializeObject.ToString());
-                    JToken status = jo_mb.SelectToken("$.status");
-                    JToken task_id = jo_mb.SelectToken("$.task_id");
-                    __task_id = task_id.ToString();
-
-                    if (status.ToString() == "1")
-                    {
-                        if (webBrowser.Url.ToString() != "http://cs.ying168.bet/account/login")
-                        {
-                            // start
-                            timer_mb_detect.Stop();
-                            __UpdateTaskStatus();
-                            __GetMABListsAsync();
-                        }
-                        else
-                        {
-                            timer_mb_detect.Start();
-                        }
-                    }
-                    else
-                    {
-                        timer_mb_detect.Start();
-                    }
-                }
-            }
-            catch (Exception err)
-            {
-                if (__isLogin)
-                {
-                    __count++;
-                    if (__count == 5)
-                    {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
-                        SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendMyBot(err.ToString());
-                        __send = 0;
-
-                        __isClose = false;
-                        Environment.Exit(0);
-                    }
-                    else
-                    {
+                        ___WaitNSeconds(10);
                         ___GetTaskStatus();
                     }
                 }
@@ -2110,7 +2127,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/setBalanceTaskStatus", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/setBalanceTaskStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                     
                     __file_name = "";
@@ -2122,10 +2139,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2135,6 +2151,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___SetTaskStatus2(task_id, file_name);
                     }
                 }
@@ -2161,7 +2178,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/setBalanceTaskStatus", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/setBalanceTaskStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
 
                     __file_name = "";
@@ -2173,10 +2190,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2186,6 +2202,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___SetTaskStatus(task_id, file_name);
                     }
                 }
@@ -2193,6 +2210,53 @@ namespace FY_RTC_Grab
         }
 
         private void __UpdateTaskStatus()
+        {
+            try
+            {
+                string password = __brand_code + __task_id + "youdieidie";
+                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
+                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
+                string token = BitConverter.ToString(hash)
+                   .Replace("-", string.Empty)
+                   .ToLower();
+
+                using (var wb = new WebClient())
+                {
+                    var data = new NameValueCollection
+                    {
+                        ["brand_code"] = __brand_code,
+                        ["task_id"] = __task_id,
+                        ["token"] = token
+                    };
+
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/updBalanceTaskStatus", "POST", data);
+                    string responseInString = Encoding.UTF8.GetString(response);
+                }
+            }
+            catch (Exception err)
+            {
+                if (__isLogin)
+                {
+                    __send++;
+                    if (__send == 5)
+                    {
+                        SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendMyBot(err.ToString());
+                        __send = 0;
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___WaitNSeconds(10);
+                        __UpdateTaskStatus2();
+                    }
+                }
+            }
+        }
+
+        private void __UpdateTaskStatus2()
         {
             try
             {
@@ -2220,10 +2284,9 @@ namespace FY_RTC_Grab
             {
                 if (__isLogin)
                 {
-                    __count++;
-                    if (__count == 5)
+                    __send++;
+                    if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2233,53 +2296,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
-                        __UpdateTaskStatus2();
-                    }
-                }
-            }
-        }
-
-        private void __UpdateTaskStatus2()
-        {
-            try
-            {
-                string password = __brand_code + __task_id + "youdieidie";
-                byte[] encodedPassword = new UTF8Encoding().GetBytes(password);
-                byte[] hash = ((HashAlgorithm)CryptoConfig.CreateFromName("MD5")).ComputeHash(encodedPassword);
-                string token = BitConverter.ToString(hash)
-                   .Replace("-", string.Empty)
-                   .ToLower();
-
-                using (var wb = new WebClient())
-                {
-                    var data = new NameValueCollection
-                    {
-                        ["brand_code"] = __brand_code,
-                        ["task_id"] = __task_id,
-                        ["token"] = token
-                    };
-
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/updBalanceTaskStatus", "POST", data);
-                    string responseInString = Encoding.UTF8.GetString(response);
-                }
-            }
-            catch (Exception err)
-            {
-                if (__isLogin)
-                {
-                    __count++;
-                    if (__count == 5)
-                    {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
-                        SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendMyBot(err.ToString());
-                        __send = 0;
-
-                        __isClose = false;
-                        Environment.Exit(0);
-                    }
-                    else
-                    {
+                        ___WaitNSeconds(10);
                         __UpdateTaskStatus();
                     }
                 }
@@ -2307,7 +2324,7 @@ namespace FY_RTC_Grab
                         {
                             string[] data = line.Split(split);
                             ___InsertData(data[0], data[3], data[6], data[9], data[12], data[15], data[18], data[21], data[24]);
-                            __count = 0;
+                            __send = 0;
                         }
                     }
                     
@@ -2323,7 +2340,6 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                 SendMyBot(err.ToString());
             }
         }
@@ -2362,7 +2378,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/updateAppStatus", "POST", data);
+                    var response = wb.UploadValues("http://192.168.10.252:8080/API/updateAppStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
@@ -2373,7 +2389,6 @@ namespace FY_RTC_Grab
                     __send++;
                     if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2383,6 +2398,7 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___DetectRunning2();
                     }
                 }
@@ -2411,7 +2427,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var response = wb.UploadValues("http://zeus2.ssitex.com:8080/API/updateAppStatus", "POST", data);
+                    var response = wb.UploadValues("http://zeus.ssitex.com:8080/API/updateAppStatus", "POST", data);
                     string responseInString = Encoding.UTF8.GetString(response);
                 }
             }
@@ -2422,7 +2438,6 @@ namespace FY_RTC_Grab
                     __send++;
                     if (__send == 5)
                     {
-                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
                         SendITSupport("There's a problem to the server, please re-open the application.");
                         SendMyBot(err.ToString());
                         __send = 0;
@@ -2432,9 +2447,20 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
+                        ___WaitNSeconds(10);
                         ___DetectRunning();
                     }
                 }
+            }
+        }
+
+        private void ___WaitNSeconds(int sec)
+        {
+            if (sec < 1) return;
+            DateTime _desired = DateTime.Now.AddSeconds(sec);
+            while (DateTime.Now < _desired)
+            {
+                Application.DoEvents();
             }
         }
     }
