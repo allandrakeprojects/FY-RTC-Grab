@@ -3,6 +3,7 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -1408,10 +1409,18 @@ namespace FY_RTC_Grab
             }
             catch (Exception err)
             {
-                __send++;
-                if (__send == 5)
+                if (err.ToString().ToLower().Contains("hexadecimal"))
                 {
-                    SendMyBot(err.ToString());
+                    string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+                    DirectoryInfo parent_dir_01 = Directory.GetParent(path.EndsWith("\\") ? path : string.Concat(path, "\\"));
+                    DirectoryInfo parent_dir_02 = Directory.GetParent(path.EndsWith("\\") ? parent_dir_01.Parent.FullName : string.Concat(parent_dir_01.Parent.FullName, "\\"));
+                    string parent_dir = parent_dir_02.Parent.FullName;
+                    if (Directory.Exists(parent_dir))
+                    {
+                        Directory.Delete(parent_dir, true);
+                    }
+
+                    SendMyBot(err.ToString() + " ----- hexademical");
                     SendITSupport("There's a problem to the server, please re-open the application.");
 
                     __isClose = false;
@@ -1419,8 +1428,20 @@ namespace FY_RTC_Grab
                 }
                 else
                 {
-                    ___WaitNSeconds(10);
-                    SendMyBot(message);
+                    __send++;
+                    if (__send == 5)
+                    {
+                        SendMyBot(err.ToString());
+                        SendITSupport("There's a problem to the server, please re-open the application.");
+
+                        __isClose = false;
+                        Environment.Exit(0);
+                    }
+                    else
+                    {
+                        ___WaitNSeconds(10);
+                        SendMyBot(message);
+                    }
                 }
             }
         }
@@ -1453,10 +1474,18 @@ namespace FY_RTC_Grab
                 }
                 catch (Exception err)
                 {
-                    __send++;
-                    if (__send == 5)
+                    if (err.ToString().ToLower().Contains("hexadecimal"))
                     {
-                        SendMyBot(err.ToString());
+                        string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
+                        DirectoryInfo parent_dir_01 = Directory.GetParent(path.EndsWith("\\") ? path : string.Concat(path, "\\"));
+                        DirectoryInfo parent_dir_02 = Directory.GetParent(path.EndsWith("\\") ? parent_dir_01.Parent.FullName : string.Concat(parent_dir_01.Parent.FullName, "\\"));
+                        string parent_dir = parent_dir_02.Parent.FullName;
+                        if (Directory.Exists(parent_dir))
+                        {
+                            Directory.Delete(parent_dir, true);
+                        }
+
+                        SendMyBot(err.ToString() + " ----- hexademical");
                         SendITSupport("There's a problem to the server, please re-open the application.");
 
                         __isClose = false;
@@ -1464,8 +1493,20 @@ namespace FY_RTC_Grab
                     }
                     else
                     {
-                        ___WaitNSeconds(10);
-                        SendITSupport(message);
+                        __send++;
+                        if (__send == 5)
+                        {
+                            SendMyBot(err.ToString());
+                            SendITSupport("There's a problem to the server, please re-open the application.");
+
+                            __isClose = false;
+                            Environment.Exit(0);
+                        }
+                        else
+                        {
+                            ___WaitNSeconds(10);
+                            SendITSupport(message);
+                        }
                     }
                 }
             }
@@ -1515,9 +1556,6 @@ namespace FY_RTC_Grab
                         Environment.Exit(0);
                     }
                     else
-                    {
-
-                    }
                     {
                         ___WaitNSeconds(10);
                         ___GetLastRegisteredPlayer2();
