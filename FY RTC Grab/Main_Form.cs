@@ -938,8 +938,8 @@ namespace FY_RTC_Grab
                 __send++;
                 if (__send == 5)
                 {
-                    SendMyBot(err.ToString() + " ----- hexadecimal");
                     SendITSupport("There's a problem to the server, please re-open the application.");
+                    SendMyBot(err.ToString() + " ----- hexadecimal");
 
                     __isClose = false;
                     Environment.Exit(0);
@@ -1420,8 +1420,8 @@ namespace FY_RTC_Grab
                         Directory.Delete(parent_dir, true);
                     }
 
-                    SendMyBot(err.ToString() + " ----- hexadecimal");
                     SendITSupport("There's a problem to the server, please re-open the application.");
+                    SendMyBot(err.ToString() + " ----- hexadecimal");
 
                     __isClose = false;
                     Environment.Exit(0);
@@ -1431,8 +1431,8 @@ namespace FY_RTC_Grab
                     __send++;
                     if (__send == 5)
                     {
-                        SendMyBot(err.ToString());
                         SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendMyBot(err.ToString());
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -1485,8 +1485,8 @@ namespace FY_RTC_Grab
                             Directory.Delete(parent_dir, true);
                         }
 
-                        SendMyBot(err.ToString() + " ----- hexadecimal");
                         SendITSupport("There's a problem to the server, please re-open the application.");
+                        SendMyBot(err.ToString() + " ----- hexadecimal");
 
                         __isClose = false;
                         Environment.Exit(0);
@@ -1496,8 +1496,8 @@ namespace FY_RTC_Grab
                         __send++;
                         if (__send == 5)
                         {
-                            SendMyBot(err.ToString());
                             SendITSupport("There's a problem to the server, please re-open the application.");
+                            SendMyBot(err.ToString());
 
                             __isClose = false;
                             Environment.Exit(0);
