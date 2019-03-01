@@ -3,7 +3,6 @@ using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
-using System.Configuration;
 using System.Diagnostics;
 using System.Drawing;
 using System.Globalization;
@@ -1411,17 +1410,23 @@ namespace FY_RTC_Grab
             {
                 if (err.ToString().ToLower().Contains("hexadecimal"))
                 {
-                    string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
-                    DirectoryInfo parent_dir_01 = Directory.GetParent(path.EndsWith("\\") ? path : string.Concat(path, "\\"));
-                    DirectoryInfo parent_dir_02 = Directory.GetParent(path.EndsWith("\\") ? parent_dir_01.Parent.FullName : string.Concat(parent_dir_01.Parent.FullName, "\\"));
-                    string parent_dir = parent_dir_02.Parent.FullName;
-                    if (Directory.Exists(parent_dir))
+                    string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                    string urlString = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text={2}";
+                    string apiToken = "772918363:AAHn2ufmP3ocLEilQ1V-IHcqYMcSuFJHx5g";
+                    string chatId = "@allandrake";
+                    string text = "-----" + __brand_code + " " + __app + "-----%0A%0AIP:%20192.168.10.60%0ALocation:%20192.168.10.60%0ADate%20and%20Time:%20[" + datetime + "]%0AMessage:%20" + message + "";
+                    urlString = String.Format(urlString, apiToken, chatId, text);
+                    WebRequest request = WebRequest.Create(urlString);
+                    Stream rs = request.GetResponse().GetResponseStream();
+                    StreamReader reader = new StreamReader(rs);
+                    string line = "";
+                    StringBuilder sb = new StringBuilder();
+                    while (line != null)
                     {
-                        Directory.Delete(parent_dir, true);
+                        line = reader.ReadLine();
+                        if (line != null)
+                            sb.Append(line);
                     }
-
-                    SendITSupport("There's a problem to the server, please re-open the application.");
-                    SendMyBot(err.ToString() + " ----- hexadecimal");
 
                     __isClose = false;
                     Environment.Exit(0);
@@ -1476,17 +1481,25 @@ namespace FY_RTC_Grab
                 {
                     if (err.ToString().ToLower().Contains("hexadecimal"))
                     {
-                        string path = ConfigurationManager.OpenExeConfiguration(ConfigurationUserLevel.PerUserRoamingAndLocal).FilePath;
-                        DirectoryInfo parent_dir_01 = Directory.GetParent(path.EndsWith("\\") ? path : string.Concat(path, "\\"));
-                        DirectoryInfo parent_dir_02 = Directory.GetParent(path.EndsWith("\\") ? parent_dir_01.Parent.FullName : string.Concat(parent_dir_01.Parent.FullName, "\\"));
-                        string parent_dir = parent_dir_02.Parent.FullName;
-                        if (Directory.Exists(parent_dir))
+                        string datetime = DateTime.Now.ToString("dd MMM HH:mm:ss");
+                        string urlString = "https://api.telegram.org/bot{0}/sendMessage?chat_id={1}&text={2}";
+                        string apiToken = "612187347:AAE9doWWcStpWrDrfpOod89qGSxCJ5JwQO4";
+                        string chatId = "@it_support_ssi";
+                        string text = "-----" + __brand_code + " " + __app + "-----%0A%0AIP:%20192.168.10.60%0ALocation:%20192.168.10.60%0ADate%20and%20Time:%20[" + datetime + "]%0AMessage:%20" + message + "";
+                        urlString = String.Format(urlString, apiToken, chatId, text);
+                        WebRequest request = WebRequest.Create(urlString);
+                        Stream rs = request.GetResponse().GetResponseStream();
+                        StreamReader reader = new StreamReader(rs);
+                        string line = "";
+                        StringBuilder sb = new StringBuilder();
+                        while (line != null)
                         {
-                            Directory.Delete(parent_dir, true);
+                            line = reader.ReadLine();
+                            if (line != null)
+                            {
+                                sb.Append(line);
+                            }
                         }
-
-                        SendITSupport("There's a problem to the server, please re-open the application.");
-                        SendMyBot(err.ToString() + " ----- hexadecimal");
 
                         __isClose = false;
                         Environment.Exit(0);

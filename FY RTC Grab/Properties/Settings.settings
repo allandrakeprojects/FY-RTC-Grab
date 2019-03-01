@@ -15,7 +15,7 @@
       <Value Profile="(Default)">0</Value>
     </Setting>
     <Setting Name="______server_ip" Type="System.String" Scope="User">
-      <Value Profile="(Default)">192.168.10.252</Value>
+      <Value Profile="(Default)">192.168.10.60</Value>
     </Setting>
     <Setting Name="______server_location" Type="System.String" Scope="User">
       <Value Profile="(Default)">Robinsons Summit</Value>
