@@ -33,7 +33,6 @@ namespace FY_RTC_Grab
         private bool __isLogin = false;
         private bool __isStart = false;
         private bool __isBreak = false;
-        private bool __is_send = true;
         private string __player_last_username = "";
         private string __playerlist_cn;
         private string __playerlist_ea;
@@ -328,6 +327,12 @@ namespace FY_RTC_Grab
                                 SendITSupport("The application have been logout, please re-login again.");
                                 SendMyBot("The application have been logout, please re-login again.");
                                 __send = 0;
+
+                                if (!Properties.Settings.Default.______is_send_telegram)
+                                {
+                                    __isClose = false;
+                                    Environment.Exit(0);
+                                }
                             }
                             
                             __isLogin = false;
@@ -365,7 +370,7 @@ namespace FY_RTC_Grab
                                 pictureBox_loader.Visible = true;
                                 label_player_last_registered.Visible = true;
                                 webBrowser.WebBrowserShortcutsEnabled = false;
-                                ___PlayerLastRegistered();
+                                await ___PlayerLastRegisteredAsync();
                                 await ___GetPlayerListsRequest();
                                 ___GetPlayerListsRequest_Deposit();
                             }
@@ -921,13 +926,16 @@ namespace FY_RTC_Grab
             }
         }
 
-        private void ___PlayerLastRegistered()
+        private async Task ___PlayerLastRegisteredAsync()
         {
+            Properties.Settings.Default.______last_registered_player = "";
+            Properties.Settings.Default.______last_registered_player_deposit = "";
+            
             try
             {
                 if (Properties.Settings.Default.______last_registered_player == "" && Properties.Settings.Default.______last_registered_player_deposit == "")
                 {
-                    ___GetLastRegisteredPlayer();
+                    await ___GetLastRegisteredPlayerAsync();
                 }
 
                 label_player_last_registered.Text = "Last Registered: " + Properties.Settings.Default.______last_registered_player;
@@ -946,7 +954,7 @@ namespace FY_RTC_Grab
                 else
                 {
                     ___WaitNSeconds(10);
-                    ___PlayerLastRegistered();
+                    await ___PlayerLastRegisteredAsync();
                 }
             }
         }
@@ -1453,7 +1461,7 @@ namespace FY_RTC_Grab
 
         private void SendITSupport(string message)
         {
-            if (__is_send)
+            if (Properties.Settings.Default.______is_send_telegram)
             {
                 try
                 {
@@ -1525,7 +1533,7 @@ namespace FY_RTC_Grab
             }
         }
 
-        private void ___GetLastRegisteredPlayer()
+        private async Task ___GetLastRegisteredPlayerAsync()
         {
             try
             {
@@ -1544,12 +1552,11 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var result = wb.UploadValues("http://192.168.10.252:8080/API/lastRTCrecord", "POST", data);
+                    byte[] result = await wb.UploadValuesTaskAsync("http://192.168.10.252:8080/API/lastRTCrecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
                     JToken plr = jo.SelectToken("$.msg");
-
                     Properties.Settings.Default.______last_registered_player = plr.ToString();                    
                     Properties.Settings.Default.______last_registered_player_deposit = plr.ToString();
                     Properties.Settings.Default.Save();
@@ -1571,13 +1578,13 @@ namespace FY_RTC_Grab
                     else
                     {
                         ___WaitNSeconds(10);
-                        ___GetLastRegisteredPlayer2();
+                        await ___GetLastRegisteredPlayer2Async();
                     }
                 }
             }
         }
 
-        private void ___GetLastRegisteredPlayer2()
+        private async Task ___GetLastRegisteredPlayer2Async()
         {
             try
             {
@@ -1596,7 +1603,7 @@ namespace FY_RTC_Grab
                         ["token"] = token
                     };
 
-                    var result = wb.UploadValues("http://zeus.ssitex.com:8080/API/lastRTCrecord", "POST", data);
+                    var result = await wb.UploadValuesTaskAsync("http://zeus.ssitex.com:8080/API/lastRTCrecord", "POST", data);
                     string responsebody = Encoding.UTF8.GetString(result);
                     var deserializeObject = JsonConvert.DeserializeObject(responsebody);
                     JObject jo = JObject.Parse(deserializeObject.ToString());
@@ -1623,7 +1630,7 @@ namespace FY_RTC_Grab
                     else
                     {
                         ___WaitNSeconds(10);
-                        ___GetLastRegisteredPlayer();
+                        await ___GetLastRegisteredPlayerAsync();
                     }
                 }
             }
@@ -2407,14 +2414,16 @@ namespace FY_RTC_Grab
 
         private void panel1_MouseDoubleClick(object sender, MouseEventArgs e)
         {
-            if (__is_send)
+            if (Properties.Settings.Default.______is_send_telegram)
             {
-                __is_send = false;
+                Properties.Settings.Default.______is_send_telegram = false;
+                Properties.Settings.Default.Save();
                 MessageBox.Show("Telegram Notification is Disabled.", __brand_code + " " + __app, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
             else
             {
-                __is_send = true;
+                Properties.Settings.Default.______is_send_telegram = true;
+                Properties.Settings.Default.Save();
                 MessageBox.Show("Telegram Notification is Enabled.", __brand_code + " " + __app, MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
         }
